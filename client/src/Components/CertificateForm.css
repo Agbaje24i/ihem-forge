@@ -1,0 +1,26 @@
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white;
+  }
+
+  .certificate-container {
+    width: 297mm;
+    height: 210mm;
+    padding: 25mm;
+    border: 10px solid #facc15;
+    box-shadow: none !important;
+    background: white;
+  }
+
+  button,
+  a {
+    display: none !important;
+  }
+}

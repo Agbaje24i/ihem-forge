@@ -1,0 +1,29 @@
+/* print.css: styles for printing/downloading certificates */
+#certificate {
+  width: 800px;
+  padding: 40px;
+  border: 10px solid #4f46e5; /* blue border */
+  border-radius: 20px;
+  background-color: white;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  margin: 20px auto;
+}
+
+#certificate h1, #certificate h2, #certificate p {
+  margin: 10px 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #certificate, #certificate * {
+    visibility: visible;
+  }
+  #certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
