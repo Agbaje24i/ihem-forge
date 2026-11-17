@@ -1,9 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { Quote } from "lucide-react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import PageHeader from "./PageHeader";
 
-// Sample testimonial data
+// Sample testimonial data - replace with real student stories
 const testimonials = [
   {
     name: "Aisha Bello",
@@ -36,7 +39,6 @@ const testimonials = [
 ];
 
 function Testimonials() {
-  // Slider settings
   const settings = {
     dots: true,
     infinite: true,
@@ -45,51 +47,51 @@ function Testimonials() {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
-    arrows: true,
+    arrows: false,
   };
 
   return (
-    <section
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 text-white"
-      style={{
-        backgroundImage:
-          "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-      }}
-    >
-      {/* Section Header */}
-      <h2 className="text-4xl font-bold mb-8 text-center drop-shadow-lg">
-        What Our Students Say
-      </h2>
-      <p className="mb-12 text-center text-gray-200 max-w-2xl">
-        Real experiences from our students who went through IHEM Forge programs. 
-        Learn, grow, and be part of our thriving tech community!
-      </p>
+    <>
+      <PageHeader
+        eyebrow="Student stories"
+        title="What our students say"
+        subtitle="Real experiences from people who learned with IHEM Forge."
+      />
 
-      {/* Carousel */}
-      <div className="w-full max-w-3xl">
-        <Slider {...settings}>
-          {testimonials.map((testi, index) => (
-            <div key={index} className="px-4">
-              <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform">
-                <img
-                  src={testi.avatar}
-                  alt={testi.name}
-                  className="w-20 h-20 rounded-full mb-4 border-2 border-white"
-                />
-                <p className="mb-4 text-lg font-medium">"{testi.message}"</p>
-                <h3 className="font-bold text-xl">{testi.name}</h3>
-                <span className="text-gray-300">{testi.program}</span>
+      <section className="px-6 pb-24">
+        <div className="mx-auto max-w-3xl">
+          <Slider {...settings}>
+            {testimonials.map((t) => (
+              <div key={t.name} className="px-2 pb-10">
+                <figure className="flex flex-col items-center rounded-3xl border border-forge-100 bg-white p-10 text-center shadow-card">
+                  <Quote className="text-ember-500" size={32} />
+                  <blockquote className="mt-4 text-lg font-medium leading-relaxed text-slate-700">
+                    {t.message}
+                  </blockquote>
+                  <img
+                    src={t.avatar}
+                    alt={t.name}
+                    className="mt-6 h-16 w-16 rounded-full object-cover ring-4 ring-forge-100"
+                  />
+                  <figcaption className="mt-3">
+                    <span className="block font-display font-bold text-forge-950">
+                      {t.name}
+                    </span>
+                    <span className="block text-sm text-slate-500">{t.program}</span>
+                  </figcaption>
+                </figure>
               </div>
-            </div>
-          ))}
-        </Slider>
-      </div>
+            ))}
+          </Slider>
 
-      {/* Call-to-Action */}
-      <button className="mt-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition">
-        Apply Now to Join IHEM Forge
-      </button>
-    </section>
+          <div className="mt-6 text-center">
+            <Link to="/student-register" className="btn-primary">
+              Apply now to join IHEM Forge
+            </Link>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
 

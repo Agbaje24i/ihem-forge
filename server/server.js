@@ -12,6 +12,7 @@ import Application from "./models/Application.js";
 import careerRoutes from "./routes/careerRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import studentAuthRoutes from "./routes/studentAuthRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/", careerRoutes);
 app.use("/", eventRoutes);
 app.use("/", studentAuthRoutes);
+app.use("/", contactRoutes);
 
 // ======================
 // CONNECT TO MONGODB

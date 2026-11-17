@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { MapPin, X } from "lucide-react";
+import PageHeader from "./PageHeader";
+import { inputClass } from "./AuthShell";
 
-// Job Openings
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+// Job openings - replace with your real roles
 const openings = [
   {
     id: 1,
@@ -65,7 +70,7 @@ const openings = [
   },
 ];
 
-// Featured Projects
+// Featured projects
 const projects = [
   {
     id: 1,
@@ -87,16 +92,12 @@ const projects = [
   },
 ];
 
+const emptyForm = { name: "", email: "", phone: "", position: "", message: "" };
+
 const Careers = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    position: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState(emptyForm);
   const [resumeFile, setResumeFile] = useState(null);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState({ type: "", text: "" });
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   const handleChange = (e) => {
@@ -104,137 +105,156 @@ const Careers = () => {
     setFormData({ ...formData, [name]: value });
   };
   const handleFileChange = (e) => setResumeFile(e.target.files[0]);
+
   const openForm = (position) => {
     setSelectedPosition(position);
     setFormData({ ...formData, position: position.title });
-    setStatus("");
+    setStatus({ type: "", text: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("Submitting...");
+    setStatus({ type: "info", text: "Submitting..." });
     const data = new FormData();
     for (const key in formData) data.append(key, formData[key]);
     if (resumeFile) data.append("resume", resumeFile);
 
     try {
-      const res = await axios.post("http://localhost:5000/careers", data, {
+      const res = await axios.post(`${API}/careers`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setStatus(res.data.message);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        position: "",
-        message: "",
-      });
+      setStatus({ type: "ok", text: res.data.message });
+      setFormData(emptyForm);
       setResumeFile(null);
       setSelectedPosition(null);
     } catch (err) {
       console.error("Career submission error:", err);
-      setStatus("Failed to submit application. Please try again.");
+      setStatus({
+        type: "error",
+        text: "Failed to submit application. Please try again.",
+      });
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 min-h-screen py-12 px-6">
-      {/* Hero Section */}
-      <section className="relative h-64 md:h-80 flex items-center justify-center text-center mb-12 rounded-xl shadow-lg overflow-hidden">
-        <div className="absolute inset-0 animate-gradient bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 opacity-40"></div>
-        <div className="relative z-10 text-white px-4">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Build Your Career with IHEM Forge
-          </h1>
-          <p className="text-md md:text-lg">
-            Join our innovators in Cloud, DevOps, UI/UX, and Software
-            Development.
-          </p>
-        </div>
-      </section>
+    <>
+      <PageHeader
+        eyebrow="Careers"
+        title="Build your career with IHEM Forge"
+        subtitle="Join a team of innovators across cloud, software, design and product, helping the next generation learn tech."
+      />
 
-      {/* Job Openings Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
-        {openings.map((job) => (
-          <div
-            key={job.id}
-            className="relative group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition duration-500 transform hover:-translate-y-2"
-          >
-            <div className="overflow-hidden h-52">
-              <img
-                src={job.image}
-                alt={job.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-blue-700 mb-2">
-                {job.title}
-              </h3>
-              <p className="text-gray-600 mb-1">
-                {job.type} • {job.location}
-              </p>
-              <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                {job.description}
-              </p>
-              <button
-                onClick={() => openForm(job)}
-                className="w-full bg-blue-600 text-white py-2 rounded-xl font-medium hover:bg-blue-700 transition"
+      <section className="px-6 pb-16">
+        <div className="mx-auto max-w-6xl">
+          {/* Result banner (stays visible after the modal closes) */}
+          {status.text && !selectedPosition && (
+            <p
+              className={`mb-8 rounded-xl p-4 text-center font-semibold ${
+                status.type === "ok"
+                  ? "bg-green-50 text-green-800"
+                  : status.type === "error"
+                  ? "bg-red-50 text-red-700"
+                  : "bg-forge-50 text-forge-800"
+              }`}
+            >
+              {status.text}
+            </p>
+          )}
+
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {openings.map((job) => (
+              <article
+                key={job.id}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-forge-100 bg-white shadow-card transition hover:-translate-y-1"
               >
-                Apply Now
-              </button>
-            </div>
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={job.image}
+                    alt={job.title}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h2 className="text-xl font-bold">{job.title}</h2>
+                  <p className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                    <span className="rounded-full bg-forge-50 px-3 py-0.5 text-xs font-bold text-forge-700">
+                      {job.type}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin size={14} /> {job.location}
+                    </span>
+                  </p>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-600">
+                    {job.description}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openForm(job)}
+                    className="btn-primary mt-5 w-full"
+                  >
+                    Apply now
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* Featured Projects */}
-      <section className="mb-16 max-w-6xl mx-auto text-center">
-        <h2 className="text-3xl font-bold text-blue-800 mb-6">
-          Featured Projects
-        </h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition duration-300"
-            >
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4 bg-white">
-                <h3 className="text-lg font-semibold text-blue-700">
-                  {project.title}
-                </h3>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* Application Modal */}
+      {/* Featured projects */}
+      <section className="bg-forge-50 px-6 py-20">
+        <div className="mx-auto max-w-6xl text-center">
+          <span className="section-eyebrow">Our work</span>
+          <h2 className="mt-4 text-3xl font-extrabold">Featured projects</h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {projects.map((project) => (
+              <figure
+                key={project.id}
+                className="overflow-hidden rounded-2xl bg-white shadow-card transition hover:-translate-y-1"
+              >
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="h-48 w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="p-4 text-left font-display font-bold text-forge-950">
+                  {project.title}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Application modal */}
       {selectedPosition && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 md:p-12 w-full max-w-md relative shadow-lg">
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-forge-950/70 p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-8 shadow-card">
             <button
+              type="button"
               onClick={() => setSelectedPosition(null)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
+              aria-label="Close"
+              className="absolute right-4 top-4 rounded-lg p-1 text-slate-500 hover:bg-forge-50 hover:text-forge-900"
             >
-              &times;
+              <X size={22} />
             </button>
-            <h2 className="text-2xl font-bold mb-4">
+            <h2 className="pr-8 text-2xl font-extrabold">
               Apply for {selectedPosition.title}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Full Name"
-                className="w-full p-3 border rounded-xl"
+                placeholder="Full name"
+                className={inputClass}
                 required
               />
               <input
@@ -243,7 +263,7 @@ const Careers = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="w-full p-3 border rounded-xl"
+                className={inputClass}
                 required
               />
               <input
@@ -252,7 +272,7 @@ const Careers = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Phone"
-                className="w-full p-3 border rounded-xl"
+                className={inputClass}
                 required
               />
               <textarea
@@ -260,43 +280,39 @@ const Careers = () => {
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Message"
-                className="w-full p-3 border rounded-xl h-24"
-              ></textarea>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="w-full border rounded-xl p-2"
-                required
+                rows="3"
+                className={inputClass}
               />
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition"
-              >
-                Submit Application
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-forge-950">
+                  Resume
+                </label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className={`${inputClass} !p-2 text-sm`}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-primary w-full">
+                Submit application
               </button>
             </form>
-            {status && (
-              <p className="mt-4 text-center text-gray-700 font-medium">
-                {status}
+            {status.text && (
+              <p
+                className={`mt-4 rounded-xl p-3 text-center text-sm font-semibold ${
+                  status.type === "error"
+                    ? "bg-red-50 text-red-700"
+                    : "bg-forge-50 text-forge-800"
+                }`}
+              >
+                {status.text}
               </p>
             )}
           </div>
         </div>
       )}
-
-      {/* CSS Animation */}
-      <style>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 8s ease infinite;
-        }
-      `}</style>
-    </div>
+    </>
   );
 };
 
