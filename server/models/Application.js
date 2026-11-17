@@ -28,6 +28,18 @@ const applicationSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    learningMode: {
+      type: String,
+      default: "",
+    },
+    experienceLevel: {
+      type: String,
+      default: "",
+    },
+    supportNeeded: {
+      type: String,
+      default: "",
+    },
     message: {
       type: String,
     },

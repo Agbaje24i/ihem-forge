@@ -1,29 +1,43 @@
 import React, { useState } from "react";
+import { ChevronDown, Search } from "lucide-react";
+import PageHeader from "./PageHeader";
 
 const faqData = [
   {
     category: "General",
     question: "What is IHEM Forge?",
     answer:
-      "IHEM Forge is a technology training hub that provides world-class education in Cloud Computing, DevOps, Mobile App Development, UI/UX, and Networking.",
+      "IHEM Forge is a technology training academy offering beginner-friendly tracks in software development, data and AI, cloud and DevOps, cybersecurity, design and product, and digital marketing.",
+  },
+  {
+    category: "General",
+    question: "Which tracks can I learn?",
+    answer:
+      "We offer many tracks, including Frontend, Backend and Full-Stack Development, Mobile Apps, Data Analytics, Data Science, AI & Automation, Cloud Computing, DevOps, Cybersecurity, Product Design, Product and Project Management, Digital Marketing and more. See the Tracks page for the full list.",
   },
   {
     category: "Application",
-    question: "How can I apply for a program?",
+    question: "How can I apply?",
     answer:
-      "You can apply by filling the online application form available on our Apply page or through our partnership registration portals.",
+      "Create a student account, choose your track and submit the application form. Our admissions team will contact you for a short conversation.",
+  },
+  {
+    category: "Application",
+    question: "Do I need prior experience?",
+    answer:
+      "No. Our tracks are beginner friendly and start from the fundamentals. If you already have some experience, tell us on the application form.",
   },
   {
     category: "Courses",
     question: "Do you offer online training?",
     answer:
-      "Yes! We offer both on-site and online training programs to suit different learners’ schedules and locations.",
+      "Yes. Depending on the track and cohort you can learn online, in-person or in a hybrid format. You choose your preferred mode when you apply.",
   },
   {
     category: "Courses",
-    question: "Are beginners welcome in your DevOps program?",
+    question: "Will I get a certificate?",
     answer:
-      "Absolutely. Our DevOps curriculum starts with foundational concepts before progressing to advanced automation and deployment topics.",
+      "Yes. Graduates receive a certificate that employers can verify online using the Verify Certificate page.",
   },
   {
     category: "Payment",
@@ -32,10 +46,16 @@ const faqData = [
       "We accept online payments, bank transfers, and installment options for certain programs.",
   },
   {
+    category: "Payment",
+    question: "Is there a scholarship or financial support?",
+    answer:
+      "Yes, we offer scholarship and funding support for motivated learners. Tick the support option on the application form and tell us why it would help. See the Scholarships page for details.",
+  },
+  {
     category: "Events",
     question: "How often do you host tech events or bootcamps?",
     answer:
-      "We host at least one major event every quarter, including bootcamps, webinars, and cloud career mentorship sessions.",
+      "We host at least one major event every quarter, including bootcamps, webinars, and career mentorship sessions.",
   },
 ];
 
@@ -46,11 +66,6 @@ function FAQ() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const toggleFAQ = (index) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
-
-  // Filter FAQs by category and search
   const filteredFAQs = faqData.filter((faq) => {
     const matchCategory =
       selectedCategory === "All" || faq.category === selectedCategory;
@@ -61,80 +76,92 @@ function FAQ() {
   });
 
   return (
-    <div
-      className="min-h-screen px-6 py-12 bg-cover bg-center relative"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1350&q=80')",
-      }}
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-70"></div>
+    <>
+      <PageHeader
+        eyebrow="FAQ"
+        title="Frequently asked questions"
+        subtitle="Quick answers about applying, learning, certificates and support."
+      />
 
-      {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto text-white">
-        <h1 className="text-4xl font-bold text-center mb-8">
-          Frequently Asked Questions
-        </h1>
+      <section className="px-6 pb-24">
+        <div className="mx-auto max-w-3xl">
+          <label className="relative block">
+            <span className="sr-only">Search questions</span>
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              type="search"
+              placeholder="Search a question..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-xl border border-forge-100 bg-white py-3 pl-10 pr-4 outline-none transition focus:border-forge-400 focus:ring-2 focus:ring-forge-200"
+            />
+          </label>
 
-        {/* Search Bar */}
-        <div className="flex justify-center mb-6">
-          <input
-            type="text"
-            placeholder="Search a question..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-1/2 px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8">
-          {categories.map((cat, index) => (
-            <button
-              key={index}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full border transition-all duration-300 ${
-                selectedCategory === cat
-                  ? "bg-blue-600 border-blue-600"
-                  : "bg-transparent border-gray-400 hover:bg-blue-500 hover:border-blue-500"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* FAQ List */}
-        <div className="space-y-4">
-          {filteredFAQs.length === 0 ? (
-            <p className="text-center text-gray-300">
-              No results found. Try another keyword.
-            </p>
-          ) : (
-            filteredFAQs.map((faq, index) => (
-              <div
-                key={index}
-                className="bg-white bg-opacity-10 rounded-lg p-4 cursor-pointer transition-all duration-300 hover:bg-opacity-20"
-                onClick={() => toggleFAQ(index)}
+          <div className="mt-5 flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setActiveIndex(null);
+                }}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  selectedCategory === cat
+                    ? "bg-forge-600 text-white shadow-glow"
+                    : "bg-forge-50 text-forge-800 hover:bg-forge-100"
+                }`}
               >
-                <h2 className="text-xl font-semibold flex justify-between items-center">
-                  {faq.question}
-                  <span className="ml-4 text-2xl">
-                    {activeIndex === index ? "−" : "+"}
-                  </span>
-                </h2>
-                {activeIndex === index && (
-                  <p className="mt-2 text-gray-200 transition-all duration-300">
-                    {faq.answer}
-                  </p>
-                )}
-              </div>
-            ))
-          )}
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-8 space-y-3">
+            {filteredFAQs.length === 0 ? (
+              <p className="text-center text-slate-500">
+                No results found. Try another keyword.
+              </p>
+            ) : (
+              filteredFAQs.map((faq, index) => {
+                const open = activeIndex === index;
+                return (
+                  <div
+                    key={faq.question}
+                    className="rounded-2xl border border-forge-100 bg-white shadow-card"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveIndex(open ? null : index)}
+                      aria-expanded={open}
+                      className="flex w-full items-center justify-between gap-4 p-5 text-left"
+                    >
+                      <span className="font-display text-base font-bold text-forge-950">
+                        {faq.question}
+                      </span>
+                      <ChevronDown
+                        size={20}
+                        className={`shrink-0 text-forge-500 transition-transform ${
+                          open ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {open && (
+                      <p className="px-5 pb-5 leading-relaxed text-slate-600">
+                        {faq.answer}
+                      </p>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
 

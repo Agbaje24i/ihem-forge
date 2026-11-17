@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Html5QrcodeScanner } from "html5-qrcode";
+import { BadgeCheck, QrCode } from "lucide-react";
+import { inputClass } from "./AuthShell";
 
 import certLogo from "../assets/cert logo.png";
 
-const API_URL = "http://localhost:5000";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const VerifyCertificate = () => {
   const { certId } = useParams();
@@ -27,13 +29,10 @@ const VerifyCertificate = () => {
     setCertificate(null);
 
     try {
-      const res = await axios.get(
-        `${API_URL}/certificate/${certificateId}`
-      );
-
+      const res = await axios.get(`${API_URL}/certificate/${certificateId}`);
       setCertificate(res.data.certificate);
     } catch (err) {
-      setError("❌ Certificate not found or invalid.");
+      setError("Certificate not found or invalid.");
     } finally {
       setLoading(false);
     }
@@ -56,13 +55,7 @@ const VerifyCertificate = () => {
 
     const scanner = new Html5QrcodeScanner(
       "reader",
-      {
-        fps: 10,
-        qrbox: {
-          width: 250,
-          height: 250,
-        },
-      },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
       false
     );
 
@@ -90,134 +83,99 @@ const VerifyCertificate = () => {
   }, [scannerVisible]);
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-6 py-20"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(8,20,60,0.75), rgba(8,20,60,0.75)), url('https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1800&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-yellow-500 p-10 w-full max-w-2xl">
-
-        <div className="flex flex-col items-center mb-8">
-
-          <img
-            src={certLogo}
-            alt="IHEM Logo"
-            className="w-24 h-24 mb-4"
-          />
-
-          <h1 className="text-4xl font-bold text-blue-900">
-            Certificate Verification
-          </h1>
-
-          <p className="text-gray-600 text-center mt-2">
-            Verify certificates issued by
-            <br />
-            <span className="font-semibold text-yellow-700">
-              IHEM Forge Tech Academy
-            </span>
+    <div className="min-h-screen bg-gradient-to-b from-forge-50 to-white px-6 pb-20 pt-32">
+      <div className="mx-auto w-full max-w-2xl rounded-3xl border border-forge-100 bg-white p-8 shadow-card sm:p-10">
+        <div className="flex flex-col items-center text-center">
+          <img src={certLogo} alt="IHEM Logo" className="mb-4 h-20 w-20 object-contain" />
+          <h1 className="text-3xl font-extrabold sm:text-4xl">Certificate verification</h1>
+          <p className="mt-2 text-slate-600">
+            Verify certificates issued by{" "}
+            <span className="font-semibold text-forge-700">IHEM Forge Tech Academy</span>
           </p>
-
         </div>
 
-        <div className="flex gap-3 mb-8">
-
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
-            placeholder="Enter Certificate ID"
+            placeholder="Enter certificate ID"
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className="flex-1 border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-700"
+            className={`${inputClass} flex-1`}
           />
-
-          <button
-            onClick={() => verifyCertificate(id)}
-            className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition"
-          >
+          <button type="button" onClick={() => verifyCertificate(id)} className="btn-primary">
             Verify
           </button>
-
           <button
+            type="button"
             onClick={() => setScannerVisible(true)}
-            className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700"
+            className="btn-outline"
           >
-            📷 Scan QR
+            <QrCode size={18} /> Scan QR
           </button>
-
         </div>
 
         {scannerVisible && (
-          <div className="mb-6">
+          <div className="mt-6">
             <div id="reader"></div>
           </div>
         )}
 
         {loading && (
-          <div className="text-center text-blue-700 font-semibold">
+          <p className="mt-6 text-center font-semibold text-forge-700">
             Verifying certificate...
-          </div>
+          </p>
         )}
 
         {error && (
-          <div className="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4">
+          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
             {error}
           </div>
         )}
 
         {certificate && (
-          <div className="bg-green-50 border-2 border-green-400 rounded-2xl p-8 mt-4">
-
-            <div className="flex justify-center mb-6">
-
-              <span className="bg-green-600 text-white px-6 py-2 rounded-full text-lg font-bold">
-                ✅ VALID CERTIFICATE
+          <div className="mt-6 rounded-2xl border-2 border-green-300 bg-green-50 p-6 sm:p-8">
+            <div className="flex justify-center">
+              <span className="inline-flex items-center gap-2 rounded-full bg-green-600 px-5 py-2 font-bold text-white">
+                <BadgeCheck size={20} /> Valid certificate
               </span>
-
             </div>
 
-            <div className="space-y-4 text-lg">
-
-              <p><strong>Student:</strong> {certificate.name}</p>
-
-              <p><strong>Course:</strong> {certificate.course}</p>
-
-              <p><strong>Completion Date:</strong> {certificate.completionDate}</p>
-
-              <p><strong>Certificate ID:</strong> {certificate.certId}</p>
-
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className="bg-green-600 text-white px-4 py-1 rounded-full text-sm">
-                  {certificate.status}
-                </span>
-              </p>
-
-            </div>
-
+            <dl className="mt-6 space-y-3 text-base">
+              <div className="flex justify-between gap-4">
+                <dt className="font-semibold text-slate-600">Student</dt>
+                <dd className="text-right font-bold text-forge-950">{certificate.name}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="font-semibold text-slate-600">Course</dt>
+                <dd className="text-right font-bold text-forge-950">{certificate.course}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="font-semibold text-slate-600">Completion date</dt>
+                <dd className="text-right font-bold text-forge-950">{certificate.completionDate}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="font-semibold text-slate-600">Certificate ID</dt>
+                <dd className="text-right font-bold text-forge-950">{certificate.certId}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt className="font-semibold text-slate-600">Status</dt>
+                <dd>
+                  <span className="rounded-full bg-green-600 px-4 py-1 text-sm font-bold text-white">
+                    {certificate.status}
+                  </span>
+                </dd>
+              </div>
+            </dl>
           </div>
         )}
 
-        <div className="mt-10 border-t pt-6 text-center">
-
-          <p className="text-gray-500 text-sm">
-            Issued and verified by
-          </p>
-
-          <h3 className="font-bold text-yellow-700 text-lg mt-1">
+        <div className="mt-10 border-t border-forge-100 pt-6 text-center">
+          <p className="text-sm text-slate-500">Issued and verified by</p>
+          <p className="mt-1 font-display text-lg font-bold text-forge-700">
             IHEM Forge Tech Academy
-          </h3>
-
-          <p className="text-xs text-gray-400 mt-2">
-            Excellence • Innovation • Integrity
           </p>
-
+          <p className="mt-2 text-xs text-slate-400">Excellence • Innovation • Integrity</p>
         </div>
-
       </div>
     </div>
   );

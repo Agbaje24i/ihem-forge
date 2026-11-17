@@ -7,27 +7,25 @@ import {
   BadgeCheck,
   ClipboardCheck,
   Hammer,
-  Rocket,
   Users,
   CheckCircle2,
   GraduationCap,
-  Briefcase,
-  BookOpen,
+  Layers,
+  Laptop,
 } from "lucide-react";
-import CoursesPreview from "./CoursesPreview";
+import TracksPreview from "./TracksPreview";
 import TestimonialsPreview from "./TestimonialsPreview";
+import TrackIcon from "./TrackIcon";
+import { benefits, homeStats, learningModes } from "../data/site";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0 },
 };
 
-// TODO: replace these with your real numbers
-const stats = [
-  { icon: GraduationCap, value: "500+", label: "Students trained" },
-  { icon: Briefcase, value: "85%", label: "Employment rate" },
-  { icon: BookOpen, value: "8+", label: "Courses available" },
-];
+// Numbers live in data/site.js (replace the placeholders there)
+const statIcons = [Layers, GraduationCap, Laptop];
+const stats = homeStats.map((s, i) => ({ ...s, icon: statIcons[i] || Layers }));
 
 const steps = [
   {
@@ -52,34 +50,11 @@ const steps = [
   },
 ];
 
-const reasons = [
-  {
-    icon: Rocket,
-    title: "Real-world skills",
-    text: "One-on-one guidance from seasoned industry experts committed to your success.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Beginner-friendly",
-    text: "No tech background? No problem. Courses start from the fundamentals and build progressively.",
-  },
-  {
-    icon: Hammer,
-    title: "Hands-on projects",
-    text: "Work on real Cloud and DevOps projects that prepare you for actual industry challenges.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Verifiable certificates",
-    text: "Every certificate can be checked online, so your achievement is easy to prove.",
-  },
-];
-
 const pathItems = [
-  { label: "Cloud fundamentals", progress: "w-full" },
-  { label: "Linux and networking", progress: "w-4/5" },
-  { label: "CI/CD pipelines", progress: "w-3/5" },
-  { label: "Capstone project", progress: "w-2/5" },
+  { label: "Foundations", progress: "w-full" },
+  { label: "Core skills", progress: "w-4/5" },
+  { label: "Real projects", progress: "w-3/5" },
+  { label: "Capstone and career prep", progress: "w-2/5" },
 ];
 
 function Home() {
@@ -107,7 +82,7 @@ function Home() {
             >
               Forge a career in{" "}
               <span className="bg-gradient-to-r from-forge-600 to-ember-500 bg-clip-text text-transparent">
-                Cloud &amp; DevOps
+                Tech
               </span>
             </motion.h1>
 
@@ -115,15 +90,16 @@ function Home() {
               variants={fadeUp}
               className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600"
             >
-              Empowering the next generation of Cloud and DevOps engineers with
-              hands-on training, expert mentorship and real-world projects.
+              Learn software, data, cloud, cybersecurity, design, marketing and
+              more with hands-on projects, expert mentorship and support all the
+              way to your first role.
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-8 flex flex-wrap gap-4">
               <Link to="/student-register" className="btn-primary">
                 Apply Now <ArrowRight size={18} />
               </Link>
-              <Link to="/courses" className="btn-outline">
+              <Link to="/tracks" className="btn-outline">
                 Explore Courses
               </Link>
             </motion.div>
@@ -157,7 +133,7 @@ function Home() {
                     Your learning path
                   </p>
                   <p className="mt-1 font-display text-xl font-bold text-forge-950">
-                    Cloud &amp; DevOps
+                    From beginner to job-ready
                   </p>
                 </div>
                 <span className="rounded-full bg-ember-400/20 px-3 py-1 text-xs font-bold text-ember-600">
@@ -225,8 +201,8 @@ function Home() {
         </div>
       </section>
 
-      {/* COURSES (loaded from your API) */}
-      <CoursesPreview />
+      {/* ALL TRACKS */}
+      <TracksPreview />
 
       {/* HOW IT WORKS */}
       <section className="bg-white px-6 py-24">
@@ -275,18 +251,51 @@ function Home() {
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {reasons.map(({ icon: Icon, title, text }) => (
+            {benefits.map(({ icon, title, text }) => (
               <div
                 key={title}
                 className="rounded-2xl bg-white p-6 shadow-card transition hover:-translate-y-1"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ember-400/20 text-ember-600">
-                  <Icon size={22} />
+                  <TrackIcon name={icon} />
                 </span>
                 <h3 className="mt-5 text-lg font-bold">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
                   {text}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* LEARNING MODES + SCHOLARSHIP */}
+      <section className="bg-white px-6 py-24">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+          <div>
+            <span className="section-eyebrow">Learn your way</span>
+            <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">
+              Online, in-person or hybrid, and funding for those who need it
+            </h2>
+            <p className="mt-4 leading-relaxed text-slate-600">
+              Pick the format that fits your life. If tuition is a barrier, our
+              scholarship programme can help you start anyway.
+            </p>
+            <Link to="/scholarship" className="btn-primary mt-8">
+              See scholarship details <ArrowRight size={18} />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+            {learningModes.map((m) => (
+              <div
+                key={m.id}
+                className="rounded-2xl border border-forge-100 bg-forge-50/60 p-5"
+              >
+                <p className="font-display text-lg font-bold text-forge-950">
+                  {m.label}
+                </p>
+                <p className="mt-1 text-sm text-slate-600">{m.text}</p>
               </div>
             ))}
           </div>
