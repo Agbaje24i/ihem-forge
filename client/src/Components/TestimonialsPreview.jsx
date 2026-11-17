@@ -1,4 +1,6 @@
 ﻿import React from "react";
+import { Link } from "react-router-dom";
+import { Quote } from "lucide-react";
 
 // TODO: Replace these with real student testimonials
 const testimonials = [
@@ -24,40 +26,49 @@ const testimonials = [
 
 const TestimonialsPreview = () => {
   return (
-    <section className="bg-white py-20 px-6">
-
-      <div className="max-w-5xl mx-auto text-center mb-14">
-        <h2 className="text-4xl font-bold text-blue-800 mb-4">
-          What Our Students Are Saying
+    <section className="bg-white px-6 py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <span className="section-eyebrow">Student stories</span>
+        <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">
+          What our students are saying
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Real stories from real IHEM Forge graduates.
+        <p className="mt-4 text-slate-600">
+          Real stories from IHEM Forge graduates.
         </p>
       </div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="mx-auto mt-14 grid max-w-6xl gap-8 md:grid-cols-3">
         {testimonials.map((t, index) => (
-          <div
+          <figure
             key={index}
-            className="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition"
+            className="relative flex flex-col rounded-2xl border border-forge-100 bg-forge-50/50 p-7 transition hover:-translate-y-1 hover:shadow-card"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-blue-800 text-white flex items-center justify-center font-bold text-lg">
-                {t.name.charAt(0)}
-              </div>
-              <div>
-                <p className="font-bold text-slate-800">{t.name}</p>
-                <p className="text-sm text-gray-500">{t.role}</p>
-              </div>
-            </div>
+            <Quote className="text-ember-500" size={28} />
+            <blockquote className="mt-4 flex-1 leading-relaxed text-slate-700">
+              {t.quote}
+            </blockquote>
 
-            <p className="text-gray-700">
-              "{t.quote}"
-            </p>
-          </div>
+            <figcaption className="mt-6 flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-forge-600 text-lg font-bold text-white">
+                {t.name.charAt(0)}
+              </span>
+              <span>
+                <span className="block font-bold text-forge-950">{t.name}</span>
+                <span className="block text-sm text-slate-500">{t.role}</span>
+              </span>
+            </figcaption>
+          </figure>
         ))}
       </div>
 
+      <div className="mt-10 text-center">
+        <Link
+          to="/testimonials"
+          className="font-bold text-forge-600 transition hover:text-forge-800"
+        >
+          Read more stories →
+        </Link>
+      </div>
     </section>
   );
 };

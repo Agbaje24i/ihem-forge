@@ -1,154 +1,163 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assets/ihem-forge-logo.png";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Menu, X } from "lucide-react";
+import Logo from "./Logo";
+
+const dropdowns = [
+  {
+    key: "academics",
+    label: "Academics",
+    items: [
+      { to: "/programs", label: "Programs" },
+      { to: "/courses", label: "Courses" },
+      { to: "/events", label: "Events" },
+    ],
+  },
+  {
+    key: "resources",
+    label: "Resources",
+    items: [
+      { to: "/blog", label: "Blog" },
+      { to: "/faq", label: "FAQ" },
+      { to: "/testimonials", label: "Testimonials" },
+      { to: "/verify", label: "Verify Certificate" },
+    ],
+  },
+  {
+    key: "involved",
+    label: "Get Involved",
+    items: [
+      { to: "/careers", label: "Careers" },
+      { to: "/contact", label: "Contact" },
+    ],
+  },
+];
+
+const linkBase =
+  "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-forge-50 hover:text-forge-700";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [dropdown, setDropdown] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   const isStudentLoggedIn = !!localStorage.getItem("studentToken");
 
-  const toggleDropdown = (menu) => {
-    setDropdown(dropdown === menu ? null : menu);
-  };
+  // Add a shadow once the page is scrolled
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close menus whenever the route changes
+  useEffect(() => {
+    setMobileOpen(false);
+    setOpenMenu(null);
+  }, [location.pathname]);
 
   return (
-    <nav
-      className="fixed top-0 left-0 w-full text-white shadow-lg z-50"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1350&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+    <header
+      className={`fixed left-0 top-0 z-50 w-full border-b bg-white/90 backdrop-blur transition-shadow ${
+        scrolled ? "border-forge-100 shadow-card" : "border-transparent"
+      }`}
     >
-      {/* Background overlay */}
-      <div className="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
+      <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <Link to="/" aria-label="IHEM Forge Tech Academy - home">
+          <Logo size={42} />
+        </Link>
 
-      {/* Main navbar container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
-        {/* Logo and Animated Name */}
-        <div className="flex items-center space-x-3">
-          <motion.div
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-yellow-400 shadow-md"
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+        {/* Desktop menu */}
+        <div className="hidden items-center gap-1 lg:flex">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? "bg-forge-50 text-forge-700" : ""}`
+            }
           >
-            <img
-              src={logo}
-              alt="IHEM Forge Logo"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
+            Home
+          </NavLink>
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? "bg-forge-50 text-forge-700" : ""}`
+            }
+          >
+            About
+          </NavLink>
 
-          <motion.h1
-            className="text-lg md:text-2xl font-extrabold text-yellow-400 tracking-wide"
-            animate={{ x: [0, 5, -5, 0] }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-          >
-            IHEM Forge Tech Academy
-          </motion.h1>
+          {dropdowns.map((menu) => (
+            <div
+              key={menu.key}
+              className="relative"
+              onMouseEnter={() => setOpenMenu(menu.key)}
+              onMouseLeave={() => setOpenMenu(null)}
+            >
+              <button
+                type="button"
+                className={`${linkBase} inline-flex items-center gap-1`}
+                aria-expanded={openMenu === menu.key}
+                onClick={() =>
+                  setOpenMenu(openMenu === menu.key ? null : menu.key)
+                }
+              >
+                {menu.label}
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${
+                    openMenu === menu.key ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {openMenu === menu.key && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full w-56 pt-2"
+                  >
+                    <div className="overflow-hidden rounded-xl border border-forge-100 bg-white p-2 shadow-card">
+                      {menu.items.map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-forge-50 hover:text-forge-700"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6 text-sm lg:text-base font-medium relative items-center">
-          <Link to="/" className="hover:text-yellow-400">Home</Link>
-          <Link to="/about" className="hover:text-yellow-400">About</Link>
-
-          {/* Programs Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => toggleDropdown("programs")}
-            onMouseLeave={() => setDropdown(null)}
-          >
-            <button className="hover:text-yellow-400">Academics ▾</button>
-            <AnimatePresence>
-              {dropdown === "programs" && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="absolute bg-blue-900 text-white shadow-lg mt-2 rounded-lg py-2 w-44"
-                >
-                  <Link to="/programs" className="block px-4 py-2 hover:bg-blue-800">Programs</Link>
-                  <Link to="/courses" className="block px-4 py-2 hover:bg-blue-800">Courses</Link>
-                  <Link to="/events" className="block px-4 py-2 hover:bg-blue-800">Events</Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Resources Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => toggleDropdown("resources")}
-            onMouseLeave={() => setDropdown(null)}
-          >
-            <button className="hover:text-yellow-400">Resources ▾</button>
-            <AnimatePresence>
-              {dropdown === "resources" && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="absolute bg-blue-900 text-white shadow-lg mt-2 rounded-lg py-2 w-52"
-                >
-                  <Link to="/blog" className="block px-4 py-2 hover:bg-blue-800">Blog</Link>
-                  <Link to="/faq" className="block px-4 py-2 hover:bg-blue-800">FAQ</Link>
-                  <Link to="/testimonials" className="block px-4 py-2 hover:bg-blue-800">Testimonials</Link>
-                  <Link to="/certificate" className="block px-4 py-2 hover:bg-blue-800 text-yellow-300 font-semibold">
-                    Certificate
-                  </Link>
-                  <Link to="/certificate-form" className="block px-4 py-2 hover:bg-blue-800 text-yellow-200">
-                    Certificate Form
-                  </Link>
-                  <Link to="/verify" className="block px-4 py-2 hover:bg-blue-800 text-green-300 font-semibold">
-                    Verify Certificate
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Get Involved Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => toggleDropdown("career")}
-            onMouseLeave={() => setDropdown(null)}
-          >
-            <button className="hover:text-yellow-400">Get Involved ▾</button>
-            <AnimatePresence>
-              {dropdown === "career" && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="absolute bg-blue-900 text-white shadow-lg mt-2 rounded-lg py-2 w-44"
-                >
-                  <Link to="/careers" className="block px-4 py-2 hover:bg-blue-800">Careers</Link>
-                  <Link to="/contact" className="block px-4 py-2 hover:bg-blue-800">Contact</Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Student Login / Apply */}
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-3 lg:flex">
           {isStudentLoggedIn ? (
-            <Link to="/student-apply" className="hover:text-yellow-400 font-semibold">
+            <Link to="/student-apply" className="btn-primary !px-5 !py-2.5 text-sm">
               My Application
             </Link>
           ) : (
             <>
-              <Link to="/student-login" className="hover:text-yellow-400 font-semibold">
+              <Link
+                to="/student-login"
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-forge-800 transition hover:bg-forge-50"
+              >
                 Login
               </Link>
               <Link
                 to="/student-register"
-                className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-lg transition"
+                className="btn-primary !px-5 !py-2.5 text-sm"
               >
                 Apply Now
               </Link>
@@ -156,58 +165,76 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile toggle */}
         <button
-          className="md:hidden flex flex-col space-y-1 focus:outline-none relative z-20"
-          onClick={() => setIsOpen(!isOpen)}
+          type="button"
+          className="rounded-lg p-2 text-forge-900 transition hover:bg-forge-50 lg:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
         >
-          <span className="block w-6 h-0.5 bg-white"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
+          {mobileOpen ? <X size={26} /> : <Menu size={26} />}
         </button>
-      </div>
+      </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <AnimatePresence>
-        {isOpen && (
+        {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="relative z-10 md:hidden bg-blue-900 bg-opacity-95 px-4 pb-4 space-y-2 text-base font-medium"
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-forge-100 bg-white px-4 pb-6 pt-3 lg:hidden"
           >
-            <Link to="/" className="block hover:text-yellow-400">Home</Link>
-            <Link to="/about" className="block hover:text-yellow-400">About</Link>
-            <Link to="/programs" className="block hover:text-yellow-400">Programs</Link>
-            <Link to="/courses" className="block hover:text-yellow-400">Courses</Link>
-            <Link to="/events" className="block hover:text-yellow-400">Events</Link>
-            <Link to="/blog" className="block hover:text-yellow-400">Blog</Link>
-            <Link to="/faq" className="block hover:text-yellow-400">FAQ</Link>
-            <Link to="/testimonials" className="block hover:text-yellow-400">Testimonials</Link>
-            <Link to="/certificate" className="block hover:text-yellow-400 font-semibold">Certificate</Link>
-            <Link to="/certificate-form" className="block hover:text-yellow-400 font-semibold">Certificate Form</Link>
-            <Link to="/verify" className="block hover:text-yellow-400 font-semibold">Verify Certificate</Link>
-            <Link to="/careers" className="block hover:text-yellow-400">Careers</Link>
-            <Link to="/contact" className="block hover:text-yellow-400">Contact</Link>
-
-            {isStudentLoggedIn ? (
-              <Link to="/student-apply" className="block hover:text-yellow-400 font-semibold">
-                My Application
+            <div className="space-y-1">
+              <Link to="/" className="block rounded-lg px-3 py-2.5 font-semibold text-slate-700 hover:bg-forge-50">
+                Home
               </Link>
-            ) : (
-              <>
-                <Link to="/student-login" className="block hover:text-yellow-400 font-semibold">
-                  Login
+              <Link to="/about" className="block rounded-lg px-3 py-2.5 font-semibold text-slate-700 hover:bg-forge-50">
+                About
+              </Link>
+            </div>
+
+            {dropdowns.map((menu) => (
+              <div key={menu.key} className="mt-4">
+                <p className="px-3 text-xs font-bold uppercase tracking-widest text-forge-500">
+                  {menu.label}
+                </p>
+                <div className="mt-1 space-y-1">
+                  {menu.items.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="block rounded-lg px-3 py-2.5 font-medium text-slate-700 hover:bg-forge-50"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="mt-6 flex flex-col gap-3">
+              {isStudentLoggedIn ? (
+                <Link to="/student-apply" className="btn-primary">
+                  My Application
                 </Link>
-                <Link to="/student-register" className="block text-yellow-400 font-semibold">
-                  Apply Now
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link to="/student-login" className="btn-outline">
+                    Login
+                  </Link>
+                  <Link to="/student-register" className="btn-primary">
+                    Apply Now
+                  </Link>
+                </>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 };
 
