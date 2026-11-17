@@ -12,8 +12,9 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Hero from "./Components/Home";
 import About from "./Components/About";
-import Programs from "./Components/Programs";
-import Courses from "./Components/Courses";
+import Tracks from "./Components/Tracks";
+import TrackDetail from "./Components/TrackDetail";
+import Scholarship from "./Components/Scholarship";
 import Testimonials from "./Components/Testimonials";
 import Blog from "./Components/Blog";
 import Events from "./Components/Events";
@@ -54,8 +55,12 @@ function App() {
 
         {/* PUBLIC ROUTES */}
         <Route path="/about" element={<About />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/courses" element={<Courses />} />
+        <Route path="/tracks" element={<Tracks />} />
+        <Route path="/tracks/:slug" element={<TrackDetail />} />
+        <Route path="/scholarship" element={<Scholarship />} />
+        {/* Old URLs keep working */}
+        <Route path="/programs" element={<Navigate to="/tracks" replace />} />
+        <Route path="/courses" element={<Navigate to="/tracks" replace />} />
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/events" element={<Events />} />

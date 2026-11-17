@@ -433,6 +433,9 @@ app.post("/apply", async (req, res) => {
       course,
       gender,
       qualification,
+      learningMode,
+      experienceLevel,
+      supportNeeded,
       message,
     } = req.body;
 
@@ -444,6 +447,9 @@ app.post("/apply", async (req, res) => {
       course,
       gender,
       qualification,
+      learningMode,
+      experienceLevel,
+      supportNeeded,
       message,
       status: "Pending",
     });

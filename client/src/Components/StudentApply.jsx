@@ -1,52 +1,68 @@
-﻿import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+﻿import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { CheckCircle2, LogOut } from "lucide-react";
+import { inputClass } from "./AuthShell";
+import { categories, getTrack, tracks } from "../data/tracks";
+import { experienceLevels, learningModes } from "../data/site";
 
-const API = "http://localhost:5000";
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+const emptyForm = (track = "") => ({
+  course: track,
+  learningMode: "online",
+  experienceLevel: experienceLevels[0],
+  phone: "",
+  gender: "",
+  qualification: "",
+  needsSupport: false,
+  supportReason: "",
+  message: "",
+});
 
 const StudentApply = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [studentInfo, setStudentInfo] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [extraCourses, setExtraCourses] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
-    course: "",
-    phone: "",
-    gender: "",
-    qualification: "",
-    message: "",
-  });
+  const preselected = getTrack(searchParams.get("track"))?.name || "";
+  const [form, setForm] = useState(emptyForm(preselected));
 
   useEffect(() => {
     const token = localStorage.getItem("studentToken");
     const info = localStorage.getItem("studentInfo");
 
     if (!token || !info) {
-      navigate("/student-login");
+      // Come back here (with the chosen track) after logging in
+      const back = encodeURIComponent(location.pathname + location.search);
+      navigate(`/student-login?redirect=${back}`, { replace: true });
       return;
     }
 
     setStudentInfo(JSON.parse(info));
-    loadCourses();
-  }, [navigate]);
 
-  const loadCourses = async () => {
-    try {
-      const response = await fetch(`${API}/courses`);
-      const data = await response.json();
-      setCourses(data);
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
+    // Courses added by an admin that are not in the built-in track list
+    fetch(`${API}/courses`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setExtraCourses(data.map((c) => c.courseName));
+      })
+      .catch((err) => console.log(err));
+  }, [navigate, location.pathname, location.search]);
+
+  const extraOnly = useMemo(() => {
+    const known = new Set(tracks.map((t) => t.name.toLowerCase()));
+    return extraCourses.filter((name) => name && !known.has(name.toLowerCase()));
+  }, [extraCourses]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
   const handleSubmit = async (e) => {
@@ -66,6 +82,9 @@ const StudentApply = () => {
           course: form.course,
           gender: form.gender,
           qualification: form.qualification,
+          learningMode: form.learningMode,
+          experienceLevel: form.experienceLevel,
+          supportNeeded: form.needsSupport ? form.supportReason || "Yes" : "",
           message: form.message,
         }),
       });
@@ -74,13 +93,8 @@ const StudentApply = () => {
 
       if (response.ok) {
         setSuccess("Application submitted successfully! We'll be in touch soon.");
-        setForm({
-          course: "",
-          phone: "",
-          gender: "",
-          qualification: "",
-          message: "",
-        });
+        setForm(emptyForm());
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         setError(data.message || "Failed to submit application");
       }
@@ -97,163 +111,205 @@ const StudentApply = () => {
     navigate("/student-login");
   };
 
-  if (!studentInfo) {
-    return null;
-  }
+  if (!studentInfo) return null;
+
+  const label = "mb-1.5 block text-sm font-semibold text-forge-950";
 
   return (
-    <div className="min-h-screen bg-gray-100">
-
-      {/* Hero Banner */}
-      <div
-        className="relative overflow-hidden shadow-lg"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          minHeight: "280px",
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-
-        <div className="relative z-10 p-10 text-white flex flex-col justify-center h-full max-w-4xl mx-auto">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold">
-                Welcome, {studentInfo.fullName}
-              </h1>
-              <p className="text-xl mt-3">
-                Apply for a course below and start your journey with us.
-              </p>
-            </div>
-
-            <button
-              onClick={logout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow"
-            >
-              Logout
-            </button>
+    <div className="min-h-screen bg-gradient-to-b from-forge-50 to-white pt-28 pb-20">
+      <div className="mx-auto max-w-2xl px-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold sm:text-4xl">
+              Welcome, {studentInfo.fullName}
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Choose your track and tell us a little about yourself.
+            </p>
           </div>
+          <button
+            onClick={logout}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-forge-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-forge-50"
+          >
+            <LogOut size={16} /> Log out
+          </button>
         </div>
-      </div>
 
-      {/* Form Section */}
-      <div className="max-w-2xl mx-auto -mt-16 relative z-20 pb-16 px-4">
-
-        <div className="bg-white rounded-xl shadow-2xl p-8">
-
+        <div className="mt-8 rounded-3xl border border-forge-100 bg-white p-8 shadow-card">
           {success && (
-            <p className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-sm">
-              {success}
+            <p className="mb-5 flex items-start gap-2 rounded-xl bg-green-50 p-3 text-sm text-green-800">
+              <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> {success}
             </p>
           )}
-
           {error && (
-            <p className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
-              {error}
-            </p>
+            <p className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Track */}
             <div>
-              <label className="block font-semibold mb-1 text-slate-700">
-                Course
-              </label>
-
-              {loading ? (
-                <p className="text-gray-500">Loading courses...</p>
-              ) : (
-                <select
-                  name="course"
-                  value={form.course}
-                  onChange={handleChange}
-                  required
-                  className="w-full border rounded-lg p-3"
-                >
-                  <option value="">Select a course</option>
-                  {courses.map((c) => (
-                    <option key={c._id} value={c.courseName}>
-                      {c.courseName}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label className="block font-semibold mb-1 text-slate-700">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg p-3"
-              />
-            </div>
-
-            <div>
-              <label className="block font-semibold mb-1 text-slate-700">
-                Gender
-              </label>
+              <label htmlFor="course" className={label}>Track</label>
               <select
-                name="gender"
-                value={form.gender}
+                id="course"
+                name="course"
+                value={form.course}
                 onChange={handleChange}
                 required
-                className="w-full border rounded-lg p-3"
+                className={inputClass}
               >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
+                <option value="">Select a track</option>
+                {categories.map((cat) => (
+                  <optgroup key={cat.id} label={cat.label}>
+                    {tracks
+                      .filter((t) => t.category === cat.id)
+                      .map((t) => (
+                        <option key={t.slug} value={t.name}>
+                          {t.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+                {extraOnly.length > 0 && (
+                  <optgroup label="Other courses">
+                    {extraOnly.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 
+            {/* Learning mode */}
+            <fieldset>
+              <legend className={label}>How would you like to learn?</legend>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {learningModes.map((m) => (
+                  <label
+                    key={m.id}
+                    className={`cursor-pointer rounded-xl border p-3 text-sm transition ${
+                      form.learningMode === m.id
+                        ? "border-forge-500 bg-forge-50"
+                        : "border-forge-100 hover:border-forge-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="learningMode"
+                      value={m.id}
+                      checked={form.learningMode === m.id}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <span className="block font-bold text-forge-950">{m.label}</span>
+                    <span className="mt-1 block text-xs text-slate-500">{m.text}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            {/* Experience */}
             <div>
-              <label className="block font-semibold mb-1 text-slate-700">
-                Highest Qualification
-              </label>
+              <label htmlFor="experienceLevel" className={label}>Your experience level</label>
+              <select
+                id="experienceLevel"
+                name="experienceLevel"
+                value={form.experienceLevel}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                {experienceLevels.map((lvl) => (
+                  <option key={lvl} value={lvl}>{lvl}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label htmlFor="phone" className={label}>Phone number</label>
+                <input
+                  id="phone"
+                  type="text"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label htmlFor="gender" className={label}>Gender</label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                >
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="qualification" className={label}>Highest qualification</label>
               <input
+                id="qualification"
                 type="text"
                 name="qualification"
                 value={form.qualification}
                 onChange={handleChange}
                 placeholder="e.g. B.Sc Computer Science"
-                className="w-full border rounded-lg p-3"
+                className={inputClass}
               />
             </div>
 
-            <div>
-              <label className="block font-semibold mb-1 text-slate-700">
-                Message (optional)
+            {/* Support */}
+            <div className="rounded-xl bg-forge-50 p-4">
+              <label className="flex cursor-pointer items-start gap-3 text-sm font-semibold text-forge-950">
+                <input
+                  type="checkbox"
+                  name="needsSupport"
+                  checked={form.needsSupport}
+                  onChange={handleChange}
+                  className="mt-1 h-4 w-4 accent-forge-600"
+                />
+                I would like to be considered for scholarship or financial support
               </label>
+              {form.needsSupport && (
+                <textarea
+                  name="supportReason"
+                  value={form.supportReason}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="Tell us briefly why tuition or equipment is a barrier for you"
+                  className={`${inputClass} mt-3`}
+                />
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="message" className={label}>Anything else? (optional)</label>
               <textarea
+                id="message"
                 name="message"
                 value={form.message}
                 onChange={handleChange}
                 rows="3"
-                className="w-full border rounded-lg p-3"
+                className={inputClass}
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
-            >
-              {submitting ? "Submitting..." : "Submit Application"}
+            <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-60">
+              {submitting ? "Submitting..." : "Submit application"}
             </button>
-
           </form>
-
         </div>
-
       </div>
-
     </div>
   );
 };

@@ -9,8 +9,8 @@ const dropdowns = [
     key: "academics",
     label: "Academics",
     items: [
-      { to: "/programs", label: "Programs" },
-      { to: "/courses", label: "Courses" },
+      { to: "/tracks", label: "All Tracks" },
+      { to: "/scholarship", label: "Scholarships" },
       { to: "/events", label: "Events" },
     ],
   },

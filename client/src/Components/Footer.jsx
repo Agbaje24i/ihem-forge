@@ -23,8 +23,8 @@ const columns = [
     title: "Academy",
     links: [
       { to: "/about", label: "About Us" },
-      { to: "/programs", label: "Programs" },
-      { to: "/courses", label: "Courses" },
+      { to: "/tracks", label: "All Tracks" },
+      { to: "/scholarship", label: "Scholarships" },
       { to: "/events", label: "Events" },
     ],
   },
@@ -57,8 +57,9 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Logo light size={44} />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-forge-200">
-              Hands-on Cloud and DevOps training that turns curious beginners
-              into job-ready engineers, one real project at a time.
+              Hands-on training across every major tech track, from software and
+              data to cloud, security and design, turning curious beginners into
+              job-ready professionals.
             </p>
 
             <div className="mt-6 flex gap-3">
