@@ -1,143 +1,325 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Award,
+  BadgeCheck,
+  ClipboardCheck,
+  Hammer,
+  Rocket,
+  Users,
+  CheckCircle2,
+  GraduationCap,
+  Briefcase,
+  BookOpen,
+} from "lucide-react";
 import CoursesPreview from "./CoursesPreview";
 import TestimonialsPreview from "./TestimonialsPreview";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0 },
+};
+
+// TODO: replace these with your real numbers
+const stats = [
+  { icon: GraduationCap, value: "500+", label: "Students trained" },
+  { icon: Briefcase, value: "85%", label: "Employment rate" },
+  { icon: BookOpen, value: "8+", label: "Courses available" },
+];
+
+const steps = [
+  {
+    icon: ClipboardCheck,
+    title: "Apply",
+    text: "Create your student account and submit your application in a few minutes.",
+  },
+  {
+    icon: Users,
+    title: "Learn with mentors",
+    text: "Study the fundamentals with guidance from experienced instructors.",
+  },
+  {
+    icon: Hammer,
+    title: "Build real projects",
+    text: "Work on hands-on Cloud and DevOps projects that mirror real industry tasks.",
+  },
+  {
+    icon: Award,
+    title: "Get certified",
+    text: "Graduate with a certificate that employers can verify online.",
+  },
+];
+
+const reasons = [
+  {
+    icon: Rocket,
+    title: "Real-world skills",
+    text: "One-on-one guidance from seasoned industry experts committed to your success.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Beginner-friendly",
+    text: "No tech background? No problem. Courses start from the fundamentals and build progressively.",
+  },
+  {
+    icon: Hammer,
+    title: "Hands-on projects",
+    text: "Work on real Cloud and DevOps projects that prepare you for actual industry challenges.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Verifiable certificates",
+    text: "Every certificate can be checked online, so your achievement is easy to prove.",
+  },
+];
+
+const pathItems = [
+  { label: "Cloud fundamentals", progress: "w-full" },
+  { label: "Linux and networking", progress: "w-4/5" },
+  { label: "CI/CD pipelines", progress: "w-3/5" },
+  { label: "Capstone project", progress: "w-2/5" },
+];
 
 function Home() {
   return (
     <>
-      {/* Navbar stays fixed at the top */}
-      <Navbar />
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-forge-50 via-white to-white pt-28 sm:pt-32">
+        {/* decorative blobs */}
+        <div className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-forge-200/50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 top-10 h-80 w-80 rounded-full bg-ember-300/40 blur-3xl" />
 
-      {/* Hero Section */}
-      <section
-        className="relative flex flex-col items-center justify-center text-center text-white h-screen"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1350&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-        {/* Main Content */}
-        <div className="relative z-10 mt-16 px-6">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Welcome to IHEM Forge Tech Academy
-          </h1>
-          <p className="text-lg md:text-xl mb-6 max-w-2xl mx-auto">
-            Empowering the next generation of Cloud & DevOps engineers with
-            hands-on training and real-world projects.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              to="/student-register"
-              className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg shadow-lg transition"
+        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 lg:grid-cols-2 lg:pb-28">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{ show: { transition: { staggerChildren: 0.12 } } }}
+          >
+            <motion.span variants={fadeUp} className="section-eyebrow">
+              Applications are open
+            </motion.span>
+
+            <motion.h1
+              variants={fadeUp}
+              className="mt-5 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl"
             >
-              Apply Now
-            </Link>
-            <Link
-              to="/courses"
-              className="bg-white bg-opacity-10 border border-white hover:bg-opacity-20 text-white font-semibold px-6 py-3 rounded-lg transition"
+              Forge a career in{" "}
+              <span className="bg-gradient-to-r from-forge-600 to-ember-500 bg-clip-text text-transparent">
+                Cloud &amp; DevOps
+              </span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600"
             >
-              Explore our Courses
-            </Link>
-          </div>
+              Empowering the next generation of Cloud and DevOps engineers with
+              hands-on training, expert mentorship and real-world projects.
+            </motion.p>
+
+            <motion.div variants={fadeUp} className="mt-8 flex flex-wrap gap-4">
+              <Link to="/student-register" className="btn-primary">
+                Apply Now <ArrowRight size={18} />
+              </Link>
+              <Link to="/courses" className="btn-outline">
+                Explore Courses
+              </Link>
+            </motion.div>
+
+            <motion.ul
+              variants={fadeUp}
+              className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-600"
+            >
+              {["Beginner friendly", "Mentor-led", "Verifiable certificates"].map(
+                (item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-forge-500" />
+                    {item}
+                  </li>
+                )
+              )}
+            </motion.ul>
+          </motion.div>
+
+          {/* Learning path card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative mx-auto w-full max-w-md"
+          >
+            <div className="rounded-3xl border border-forge-100 bg-white p-7 shadow-card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-forge-500">
+                    Your learning path
+                  </p>
+                  <p className="mt-1 font-display text-xl font-bold text-forge-950">
+                    Cloud &amp; DevOps
+                  </p>
+                </div>
+                <span className="rounded-full bg-ember-400/20 px-3 py-1 text-xs font-bold text-ember-600">
+                  Hands-on
+                </span>
+              </div>
+
+              <ul className="mt-6 space-y-5">
+                {pathItems.map((item) => (
+                  <li key={item.label}>
+                    <div className="mb-2 flex justify-between text-sm font-semibold text-slate-700">
+                      <span>{item.label}</span>
+                    </div>
+                    <div className="h-2.5 overflow-hidden rounded-full bg-forge-50">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r from-forge-500 to-ember-500 ${item.progress}`}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-7 flex items-center gap-3 rounded-2xl bg-forge-50 p-4">
+                <BadgeCheck className="text-forge-600" size={28} />
+                <p className="text-sm font-medium text-forge-900">
+                  Finish the path and earn a certificate you can verify online.
+                </p>
+              </div>
+            </div>
+
+            {/* floating badge */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+              className="absolute -bottom-6 -left-4 hidden items-center gap-3 rounded-2xl border border-forge-100 bg-white px-4 py-3 shadow-card sm:flex"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-forge-600 text-white">
+                <Users size={18} />
+              </span>
+              <div>
+                <p className="text-sm font-bold text-forge-950">Mentor-led</p>
+                <p className="text-xs text-slate-500">Real guidance, every step</p>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-white py-14 px-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10 text-center">
-
-          <div className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-4xl mb-3">
-              🎓
+      {/* STATS */}
+      <section className="relative z-10 -mt-4 px-6">
+        <div className="mx-auto grid max-w-5xl gap-6 rounded-3xl border border-forge-100 bg-white p-8 shadow-card sm:grid-cols-3">
+          {stats.map(({ icon: Icon, value, label }) => (
+            <div key={label} className="flex items-center gap-4 sm:justify-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-forge-50 text-forge-600">
+                <Icon size={26} />
+              </span>
+              <div>
+                <p className="font-display text-3xl font-extrabold text-forge-950">
+                  {value}
+                </p>
+                <p className="text-sm text-slate-500">{label}</p>
+              </div>
             </div>
-            {/* TODO: replace with your real student count */}
-            <p className="text-3xl font-bold text-slate-800">500+</p>
-            <p className="text-gray-600 mt-1">Students</p>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-4xl mb-3">
-              💼
-            </div>
-            {/* TODO: replace with your real employment rate */}
-            <p className="text-3xl font-bold text-slate-800">85%</p>
-            <p className="text-gray-600 mt-1">Employment Rate</p>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-4xl mb-3">
-              📚
-            </div>
-            {/* TODO: replace with your real course count */}
-            <p className="text-3xl font-bold text-slate-800">8+</p>
-            <p className="text-gray-600 mt-1">Courses</p>
-          </div>
-
+          ))}
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="bg-gray-100 py-20 px-6">
-        <div className="max-w-5xl mx-auto text-center mb-14">
-          <h2 className="text-4xl font-bold text-blue-800 mb-4">
-            Why Choose IHEM Forge?
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            We're more than an academy — we're your partner in growth.
-            Here's why learners choose us:
-          </p>
-        </div>
-
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-
-          <div>
-            <h3 className="text-xl font-bold text-blue-800 mb-3">
-              Real-World Skills
-            </h3>
-            <p className="text-gray-600">
-              Get one-on-one guidance from seasoned industry experts
-              committed to your success.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-blue-800 mb-3">
-              Beginner-Friendly Learning
-            </h3>
-            <p className="text-gray-600">
-              No prior tech background? No problem. Our courses start
-              from the fundamentals and build progressively.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-blue-800 mb-3">
-              Hands-On Projects
-            </h3>
-            <p className="text-gray-600">
-              Work on real Cloud & DevOps projects that prepare you for
-              actual industry challenges.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Courses Preview */}
+      {/* COURSES (loaded from your API) */}
       <CoursesPreview />
 
-      {/* Testimonials Preview */}
+      {/* HOW IT WORKS */}
+      <section className="bg-white px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="section-eyebrow">How it works</span>
+            <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">
+              From first click to first job, in four steps
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(({ icon: Icon, title, text }, index) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: index * 0.08 }}
+                className="relative rounded-2xl border border-forge-100 bg-white p-6 shadow-card"
+              >
+                <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-forge-50">
+                  {index + 1}
+                </span>
+                <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-forge-600 text-white">
+                  <Icon size={22} />
+                </span>
+                <h3 className="relative mt-5 text-lg font-bold">{title}</h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-slate-600">
+                  {text}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WHY CHOOSE US */}
+      <section className="bg-forge-50 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="section-eyebrow">Why IHEM Forge</span>
+            <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">
+              We're more than an academy, we're your partner in growth
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {reasons.map(({ icon: Icon, title, text }) => (
+              <div
+                key={title}
+                className="rounded-2xl bg-white p-6 shadow-card transition hover:-translate-y-1"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ember-400/20 text-ember-600">
+                  <Icon size={22} />
+                </span>
+                <h3 className="mt-5 text-lg font-bold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
       <TestimonialsPreview />
 
-      {/* Footer */}
-      <Footer />
+      {/* FINAL CTA */}
+      <section className="px-6 py-24">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br from-forge-700 to-forge-950 px-8 py-16 text-center shadow-glow">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-ember-500/30 blur-3xl" />
+          <h2 className="relative text-3xl font-extrabold !text-white sm:text-4xl">
+            Ready to start your tech journey?
+          </h2>
+          <p className="relative mx-auto mt-4 max-w-xl text-forge-100">
+            Join IHEM Forge Tech Academy and build the skills employers are
+            looking for. Applications are open now.
+          </p>
+          <div className="relative mt-8 flex flex-wrap justify-center gap-4">
+            <Link to="/student-register" className="btn-accent">
+              Apply Now <ArrowRight size={18} />
+            </Link>
+            <Link
+              to="/faq"
+              className="inline-flex items-center justify-center rounded-xl border border-white/30 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+            >
+              Read the FAQ
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

@@ -1,3 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-slate-700 antialiased bg-white;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-forge-950;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-forge-600 px-6 py-3 font-semibold text-white shadow-glow transition hover:bg-forge-700 hover:-translate-y-0.5;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-ember-500 px-6 py-3 font-semibold text-forge-950 transition hover:bg-ember-400 hover:-translate-y-0.5;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-forge-200 bg-white px-6 py-3 font-semibold text-forge-800 transition hover:border-forge-400 hover:bg-forge-50;
+  }
+
+  .section-eyebrow {
+    @apply inline-block rounded-full bg-forge-50 px-4 py-1 text-xs font-bold uppercase tracking-widest text-forge-600;
+  }
+}

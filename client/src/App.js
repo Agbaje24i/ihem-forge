@@ -4,10 +4,12 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 // Components
 import Navbar from "./Components/Navbar";
+import Footer from "./Components/Footer";
 import Hero from "./Components/Home";
 import About from "./Components/About";
 import Programs from "./Components/Programs";
@@ -35,15 +37,19 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to="/admin-login" replace />;
 };
 
+// Footer shows on every public page, but not inside the admin area
+const FooterGate = () => {
+  const { pathname } = useLocation();
+  return pathname.startsWith("/admin") ? null : <Footer />;
+};
+
 function App() {
   return (
     <Router>
       <Navbar />
 
       <Routes>
-        {/* HOME - Hero already includes its own Navbar, hero, stats,
-            "Why Choose Us", Courses preview, Testimonials preview, and Footer.
-            Nothing else needs to be added here. */}
+        {/* HOME - the Navbar and Footer are rendered once, globally, by App. */}
         <Route path="/" element={<Hero />} />
 
         {/* PUBLIC ROUTES */}
@@ -81,6 +87,8 @@ function App() {
         <Route path="/verify" element={<VerifyCertificate />} />
         <Route path="/verify/:certId" element={<VerifyCertificate />} />
       </Routes>
+
+      <FooterGate />
     </Router>
   );
 }
