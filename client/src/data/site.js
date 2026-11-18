@@ -88,9 +88,9 @@ export const contactInfo = {
 // Social pages. Leave a link empty until you have created that account:
 // icons with an empty link are hidden. Example: "https://instagram.com/yourhandle"
 export const socialLinks = {
-  facebook: "",
-  instagram: "",
-  linkedin: "",
+  facebook: "https://web.facebook.com/profile.php?id=61590137931862",
+  instagram: "https://www.instagram.com/ihemforge/",
+  linkedin: "https://www.linkedin.com/company/ihemforge-academy/",
   twitter: "",
   youtube: "",
 };

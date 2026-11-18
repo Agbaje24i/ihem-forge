@@ -313,7 +313,7 @@ function Home() {
             Ready to start your tech journey?
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-forge-100">
-            Join IHEM Forge Tech Academy and build the skills employers are
+            Join IHEMFORGE Academy and build the skills employers are
             looking for. Applications are open now.
           </p>
           <div className="relative mt-8 flex flex-wrap justify-center gap-4">

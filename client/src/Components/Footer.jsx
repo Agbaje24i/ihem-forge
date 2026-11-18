@@ -115,10 +115,10 @@ const Footer = () => {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-forge-300 sm:flex-row">
           <p>
-            © {new Date().getFullYear()} IHEM Forge Tech Academy. All rights
+            © {new Date().getFullYear()} IHEMFORGE Academy. All rights
             reserved.
           </p>
-          <p>Forging the next generation of tech talent.</p>
+          <p>Learn. Build. Grow.</p>
         </div>
       </div>
     </footer>
