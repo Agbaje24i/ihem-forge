@@ -31,6 +31,7 @@ import VerifyCertificate from "./Components/VerifyCertificate";
 import StudentRegister from "./Components/StudentRegister";
 import StudentLogin from "./Components/StudentLogin";
 import StudentApply from "./Components/StudentApply";
+import StudentPortal from "./Components/StudentPortal";
 
 // 🔒 Protected Route (admin)
 const ProtectedRoute = ({ children }) => {
@@ -74,6 +75,7 @@ function App() {
         <Route path="/student-register" element={<StudentRegister />} />
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/student-apply" element={<StudentApply />} />
+        <Route path="/student-portal" element={<StudentPortal />} />
 
         {/* DASHBOARD */}
         <Route

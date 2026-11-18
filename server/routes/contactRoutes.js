@@ -1,10 +1,11 @@
 import express from "express";
 import Message from "../models/Message.js";
+import { requireAdmin } from "../auth.js";
 
 const router = express.Router();
 
 // ----------------- GET ALL MESSAGES (admin Messages page) -----------------
-router.get("/contact", async (req, res) => {
+router.get("/contact", requireAdmin, async (req, res) => {
   try {
     const messages = await Message.find().sort({ createdAt: -1 });
     res.json(messages);
@@ -39,7 +40,7 @@ router.post("/contact", async (req, res) => {
 });
 
 // ----------------- DELETE A MESSAGE -----------------
-router.delete("/contact/:id", async (req, res) => {
+router.delete("/contact/:id", requireAdmin, async (req, res) => {
   try {
     await Message.findByIdAndDelete(req.params.id);
     res.json({ message: "Message deleted" });

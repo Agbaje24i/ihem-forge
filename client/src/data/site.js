@@ -9,12 +9,6 @@ export const learningModes = [
 
 export const experienceLevels = ["Complete beginner", "Some experience", "Intermediate"];
 
-// TODO: replace with real, current cohort dates
-export const cohorts = [
-  "Next available cohort",
-  "TODO: add cohort date",
-];
-
 export const benefits = [
   {
     icon: "Users",

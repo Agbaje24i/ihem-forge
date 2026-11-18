@@ -40,6 +40,27 @@ const applicationSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    cohort: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cohort",
+    },
+    cohortName: {
+      type: String,
+      default: "",
+    },
+    scholarshipPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    reviewNote: {
+      type: String,
+      default: "",
+    },
+    reviewedAt: {
+      type: Date,
+    },
     message: {
       type: String,
     },
