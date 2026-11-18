@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,10 +11,25 @@ import {
 } from "lucide-react";
 import TrackIcon from "./TrackIcon";
 import { getCategory, getTrack, tracks } from "../data/tracks";
+import { formatDate, naira, publicRequest } from "../api";
 
 const TrackDetail = () => {
   const { slug } = useParams();
   const track = getTrack(slug);
+  const [cohorts, setCohorts] = useState([]);
+  const trackName = track?.name;
+
+  useEffect(() => {
+    setCohorts([]);
+    if (!trackName) return;
+    let active = true;
+    publicRequest(`/cohorts?track=${encodeURIComponent(trackName)}`).then(({ ok, data }) => {
+      if (active && ok && Array.isArray(data)) setCohorts(data);
+    });
+    return () => {
+      active = false;
+    };
+  }, [trackName]);
 
   if (!track) return <Navigate to="/tracks" replace />;
 
@@ -140,6 +155,26 @@ const TrackDetail = () => {
                 Apply now
               </Link>
             </div>
+
+            {cohorts.length > 0 && (
+              <div className="rounded-2xl border border-forge-100 bg-white p-6">
+                <h3 className="text-lg font-bold">Upcoming intakes</h3>
+                <ul className="mt-4 space-y-3 text-sm">
+                  {cohorts.map((c) => (
+                    <li key={c._id} className="rounded-xl bg-forge-50 p-3">
+                      <p className="font-semibold">{c.name}</p>
+                      <p className="text-slate-600">
+                        Starts {formatDate(c.startDate)}
+                        {c.tuition ? ` · ${naira(c.tuition)}` : ""}
+                      </p>
+                      <p className="text-slate-500">
+                        {c.seatsLeft > 0 ? `${c.seatsLeft} seats left` : "Full"}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </aside>
         </div>
       </section>

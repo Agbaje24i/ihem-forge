@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { adminRequest } from "../../api";
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
@@ -11,13 +12,8 @@ const Messages = () => {
   // ======================
 
   const loadMessages = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/contact");
-      const data = await response.json();
-      setMessages(data);
-    } catch (err) {
-      console.log(err);
-    }
+    const { ok, data } = await adminRequest("/contact");
+    setMessages(ok && Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {
@@ -31,15 +27,8 @@ const Messages = () => {
   const deleteMessage = async (id) => {
     if (!window.confirm("Delete this message?")) return;
 
-    try {
-      await fetch(`http://localhost:5000/contact/${id}`, {
-        method: "DELETE",
-      });
-
-      loadMessages();
-    } catch (err) {
-      console.log(err);
-    }
+    await adminRequest(`/contact/${id}`, { method: "DELETE" });
+    loadMessages();
   };
 
   return (

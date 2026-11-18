@@ -2,10 +2,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import StudentAccount from "../models/StudentAccount.js";
+import { STUDENT_JWT_SECRET } from "../auth.js";
 
 const router = express.Router();
 
-const JWT_SECRET = "IHEM_STUDENT_SECRET_KEY";
+const JWT_SECRET = STUDENT_JWT_SECRET;
 
 router.post("/student-register", async (req, res) => {
   try {

@@ -9,8 +9,8 @@ import Applications from "./Applications";
 import Messages from "./Messages";
 import Events from "./Events";
 import CareerApplications from "./CareerApplications";
-
-const API = "http://localhost:5000";
+import Cohorts from "./Cohorts";
+import { API, adminRequest } from "../../api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -41,19 +41,15 @@ const AdminDashboard = () => {
         setCertificates(await certRes.json());
       }
 
-      try {
-        const appRes = await fetch(`${API}/apply`);
-        if (appRes.ok) {
-          setApplications(await appRes.json());
-        }
-      } catch {}
+      const appRes = await adminRequest("/apply");
+      if (appRes.ok && Array.isArray(appRes.data)) {
+        setApplications(appRes.data);
+      }
 
-      try {
-        const msgRes = await fetch(`${API}/contact`);
-        if (msgRes.ok) {
-          setMessages(await msgRes.json());
-        }
-      } catch {}
+      const msgRes = await adminRequest("/contact");
+      if (msgRes.ok && Array.isArray(msgRes.data)) {
+        setMessages(msgRes.data);
+      }
 
       try {
         const eventRes = await fetch(`${API}/register-event`);
@@ -148,6 +144,17 @@ const AdminDashboard = () => {
           </button>
 
           <button
+            onClick={() => setActivePage("cohorts")}
+            className={`w-full text-left px-3 py-3 rounded ${
+              activePage === "cohorts"
+                ? "bg-blue-600"
+                : "hover:bg-slate-700"
+            }`}
+          >
+            📅 Cohorts &amp; Classes
+          </button>
+
+          <button
             onClick={() => setActivePage("applications")}
             className={`w-full text-left px-3 py-3 rounded ${
               activePage === "applications"
@@ -220,6 +227,10 @@ const AdminDashboard = () => {
 
         {activePage === "courses" && (
           <Courses />
+        )}
+
+        {activePage === "cohorts" && (
+          <Cohorts />
         )}
 
         {activePage === "applications" && (

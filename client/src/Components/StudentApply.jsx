@@ -1,9 +1,10 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle2, LogOut } from "lucide-react";
 import { inputClass } from "./AuthShell";
 import { categories, getTrack, tracks } from "../data/tracks";
 import { experienceLevels, learningModes } from "../data/site";
+import { formatDate, naira, publicRequest } from "../api";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -29,6 +30,9 @@ const StudentApply = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const [cohorts, setCohorts] = useState([]);
+  const [cohortId, setCohortId] = useState("");
 
   const preselected = getTrack(searchParams.get("track"))?.name || "";
   const [form, setForm] = useState(emptyForm(preselected));
@@ -60,6 +64,20 @@ const StudentApply = () => {
     return extraCourses.filter((name) => name && !known.has(name.toLowerCase()));
   }, [extraCourses]);
 
+  // Open intakes for the chosen track
+  useEffect(() => {
+    setCohortId("");
+    setCohorts([]);
+    if (!form.course) return;
+    let active = true;
+    publicRequest(`/cohorts?track=${encodeURIComponent(form.course)}`).then(({ ok, data }) => {
+      if (active && ok && Array.isArray(data)) setCohorts(data);
+    });
+    return () => {
+      active = false;
+    };
+  }, [form.course]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
@@ -86,6 +104,7 @@ const StudentApply = () => {
           experienceLevel: form.experienceLevel,
           supportNeeded: form.needsSupport ? form.supportReason || "Yes" : "",
           message: form.message,
+          ...(cohortId ? { cohortId } : {}),
         }),
       });
 
@@ -138,7 +157,13 @@ const StudentApply = () => {
         <div className="mt-8 rounded-3xl border border-forge-100 bg-white p-8 shadow-card">
           {success && (
             <p className="mb-5 flex items-start gap-2 rounded-xl bg-green-50 p-3 text-sm text-green-800">
-              <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> {success}
+              <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+              <span>
+                {success}{" "}
+                <Link to="/student-portal" className="font-semibold underline">
+                  Open my portal
+                </Link>
+              </span>
             </p>
           )}
           {error && (
@@ -180,6 +205,34 @@ const StudentApply = () => {
                 )}
               </select>
             </div>
+
+            {/* Cohort */}
+            {form.course && (
+              <div>
+                <label htmlFor="cohort" className={label}>Start date (cohort)</label>
+                {cohorts.length === 0 ? (
+                  <p className="rounded-xl bg-forge-50 p-3 text-sm text-slate-600">
+                    No intake dates are open for this track yet. You can still apply and we will place you in the next one.
+                  </p>
+                ) : (
+                  <select
+                    id="cohort"
+                    value={cohortId}
+                    onChange={(e) => setCohortId(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="">No preference</option>
+                    {cohorts.map((c) => (
+                      <option key={c._id} value={c._id} disabled={c.seatsLeft <= 0}>
+                        {c.name} · starts {formatDate(c.startDate)} · {c.mode === "any" ? "any mode" : c.mode}
+                        {c.tuition ? ` · ${naira(c.tuition)}` : ""}
+                        {c.seatsLeft <= 0 ? " · full" : ` · ${c.seatsLeft} seats left`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
 
             {/* Learning mode */}
             <fieldset>

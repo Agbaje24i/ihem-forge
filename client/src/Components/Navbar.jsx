@@ -144,8 +144,8 @@ const Navbar = () => {
         {/* Desktop actions */}
         <div className="hidden items-center gap-3 lg:flex">
           {isStudentLoggedIn ? (
-            <Link to="/student-apply" className="btn-primary !px-5 !py-2.5 text-sm">
-              My Application
+            <Link to="/student-portal" className="btn-primary !px-5 !py-2.5 text-sm">
+              My Portal
             </Link>
           ) : (
             <>
@@ -217,8 +217,8 @@ const Navbar = () => {
 
             <div className="mt-6 flex flex-col gap-3">
               {isStudentLoggedIn ? (
-                <Link to="/student-apply" className="btn-primary">
-                  My Application
+                <Link to="/student-portal" className="btn-primary">
+                  My Portal
                 </Link>
               ) : (
                 <>
