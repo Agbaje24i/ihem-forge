@@ -7,6 +7,7 @@ import { inputClass } from "./AuthShell";
 // Local images (make sure they exist in /src/assets)
 import leadPhoto from "../assets/lead.jpg";
 import instructorPhoto from "../assets/instructor.jpg";
+import { contactInfo } from "../data/site";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -92,6 +93,8 @@ const Contact = () => {
               </div>
             ))}
           </div>
+
+          <p className="mt-6 text-center text-sm text-slate-600">Office hours: {contactInfo.hours}</p>
 
           {/* Form */}
           <div className="mx-auto mt-12 max-w-2xl rounded-3xl border border-forge-100 bg-white p-8 shadow-card md:p-10">

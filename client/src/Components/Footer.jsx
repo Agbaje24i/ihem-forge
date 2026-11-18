@@ -8,15 +8,15 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import Logo from "./Logo";
+import { contactInfo, socialLinks } from "../data/site";
 
-// TODO: replace these placeholder URLs with your real social pages
 const socials = [
-  { icon: FaFacebookF, href: "https://facebook.com/yourpage", label: "Facebook" },
-  { icon: FaInstagram, href: "https://instagram.com/yourpage", label: "Instagram" },
-  { icon: FaLinkedinIn, href: "https://linkedin.com/in/yourpage", label: "LinkedIn" },
-  { icon: FaTwitter, href: "https://twitter.com/yourpage", label: "Twitter" },
-  { icon: FaYoutube, href: "https://youtube.com/yourchannel", label: "YouTube" },
-];
+  { icon: FaFacebookF, href: socialLinks.facebook, label: "Facebook" },
+  { icon: FaInstagram, href: socialLinks.instagram, label: "Instagram" },
+  { icon: FaLinkedinIn, href: socialLinks.linkedin, label: "LinkedIn" },
+  { icon: FaTwitter, href: socialLinks.twitter, label: "Twitter" },
+  { icon: FaYoutube, href: socialLinks.youtube, label: "YouTube" },
+].filter((item) => item.href);
 
 const columns = [
   {
@@ -61,6 +61,19 @@ const Footer = () => {
               data to cloud, security and design, turning curious beginners into
               job-ready professionals.
             </p>
+
+            <ul className="mt-6 space-y-3 text-sm text-forge-200">
+              {contactInfo.people.map((p) => (
+                <li key={p.role}>
+                  <span className="font-semibold text-white">{p.role}:</span> {p.name}
+                  <br />
+                  <a href={`tel:${p.phone}`} className="hover:text-ember-400">{p.phone}</a>
+                  {" · "}
+                  <a href={`mailto:${p.email}`} className="hover:text-ember-400">{p.email}</a>
+                </li>
+              ))}
+              <li>{contactInfo.hours}</li>
+            </ul>
 
             <div className="mt-6 flex gap-3">
               {socials.map(({ icon: Icon, href, label }) => (
