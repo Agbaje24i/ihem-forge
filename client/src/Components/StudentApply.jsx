@@ -5,8 +5,8 @@ import { inputClass } from "./AuthShell";
 import { categories, getTrack, tracks } from "../data/tracks";
 import { experienceLevels, learningModes } from "../data/site";
 import { formatDate, naira, publicRequest } from "../api";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const emptyForm = (track = "") => ({
   course: track,

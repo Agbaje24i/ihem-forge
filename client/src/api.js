@@ -1,6 +1,20 @@
 // Shared helpers for talking to the backend.
-// Set REACT_APP_API_URL in client/.env (for example in GitHub Codespaces).
-export const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+// Where the backend lives. Order of choice:
+// 1. REACT_APP_API_URL from client/.env, if set
+// 2. In GitHub Codespaces, the same address with port 5000 instead of 3000
+// 3. http://localhost:5000
+const guessApiUrl = () => {
+  if (process.env.REACT_APP_API_URL) return process.env.REACT_APP_API_URL;
+  try {
+    const { protocol, hostname } = window.location;
+    if (hostname.endsWith(".app.github.dev") && /-\d+\.app\.github\.dev$/.test(hostname)) {
+      return `${protocol}//${hostname.replace(/-\d+\.app\.github\.dev$/, "-5000.app.github.dev")}`;
+    }
+  } catch {}
+  return "http://localhost:5000";
+};
+
+export const API = guessApiUrl();
 
 const read = (key) => {
   try {

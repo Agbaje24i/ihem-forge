@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import AuthShell, { inputClass } from "./AuthShell";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 // Only allow redirects to pages inside this site
 const safeRedirect = (value) =>

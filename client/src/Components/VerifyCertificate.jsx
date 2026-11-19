@@ -6,8 +6,9 @@ import { BadgeCheck, QrCode } from "lucide-react";
 import { inputClass } from "./AuthShell";
 
 import certLogo from "../assets/cert logo.png";
+import { API } from "../api";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_URL = API;
 
 const VerifyCertificate = () => {
   const { certId } = useParams();

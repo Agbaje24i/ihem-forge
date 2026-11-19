@@ -3,8 +3,8 @@ import axios from "axios";
 import { MapPin, X } from "lucide-react";
 import PageHeader from "./PageHeader";
 import { inputClass } from "./AuthShell";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 // Job openings - replace with your real roles
 const openings = [

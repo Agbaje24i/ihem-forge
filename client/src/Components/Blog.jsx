@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "./PageHeader";
 import { Search } from "lucide-react";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const POSTS_PER_PAGE = 3;
 
 function Blog() {
