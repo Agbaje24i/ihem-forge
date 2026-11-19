@@ -66,7 +66,7 @@ const Navbar = () => {
       }`}
     >
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" aria-label="IHEM Forge Tech Academy - home">
+        <Link to="/" aria-label="IHEMFORGE Academy - home">
           <Logo size={42} />
         </Link>
 

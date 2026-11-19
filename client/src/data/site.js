@@ -74,3 +74,23 @@ export const homeStats = [
   { value: "500+", label: "Students trained" },
   { value: "3", label: "Learning modes" },
 ];
+
+// Contact details shown in the footer and on the contact page.
+// Opening hours are a placeholder - change them to your real hours.
+export const contactInfo = {
+  hours: "Mon - Fri: 9am - 5pm",
+  people: [
+    { role: "Programme Lead", name: "Engr. Akinnadeju Bukky F", phone: "+2348130620238", email: "Bukky.akinnadeju17@gmail.com" },
+    { role: "Programme Instructor", name: "Agbaje Isaac A", phone: "+2348142723736", email: "adebisiisaac1@gmail.com" },
+  ],
+};
+
+// Social pages. Leave a link empty until you have created that account:
+// icons with an empty link are hidden. Example: "https://instagram.com/yourhandle"
+export const socialLinks = {
+  facebook: "https://web.facebook.com/profile.php?id=61590137931862",
+  instagram: "https://www.instagram.com/ihemforge/",
+  linkedin: "https://www.linkedin.com/company/ihemforge-academy/",
+  twitter: "",
+  youtube: "",
+};

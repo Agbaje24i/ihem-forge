@@ -90,7 +90,7 @@ const VerifyCertificate = () => {
           <h1 className="text-3xl font-extrabold sm:text-4xl">Certificate verification</h1>
           <p className="mt-2 text-slate-600">
             Verify certificates issued by{" "}
-            <span className="font-semibold text-forge-700">IHEM Forge Tech Academy</span>
+            <span className="font-semibold text-forge-700">IHEMFORGE Academy</span>
           </p>
         </div>
 
@@ -172,7 +172,7 @@ const VerifyCertificate = () => {
         <div className="mt-10 border-t border-forge-100 pt-6 text-center">
           <p className="text-sm text-slate-500">Issued and verified by</p>
           <p className="mt-1 font-display text-lg font-bold text-forge-700">
-            IHEM Forge Tech Academy
+            IHEMFORGE Academy
           </p>
           <p className="mt-2 text-xs text-slate-400">Excellence • Innovation • Integrity</p>
         </div>
