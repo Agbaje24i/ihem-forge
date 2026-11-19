@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API } from "../../api";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -13,7 +14,7 @@ const Events = () => {
   const loadEvents = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/register-event"
+        `${API}/register-event`
       );
       const data = await response.json();
       setEvents(data);
@@ -34,7 +35,7 @@ const Events = () => {
     if (!window.confirm("Delete this registration?")) return;
 
     try {
-      await fetch(`http://localhost:5000/register-event/${id}`, {
+      await fetch(`${API}/register-event/${id}`, {
         method: "DELETE",
       });
 

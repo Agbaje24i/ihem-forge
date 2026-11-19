@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API } from "../../api";
 
 const ManageCareers = () => {
   const [careers, setCareers] = useState([]);
@@ -8,7 +9,7 @@ const ManageCareers = () => {
 
   const fetchCareers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/career");
+      const res = await axios.get(`${API}/career`);
       setCareers(res.data);
     } catch (err) {
       console.error("Error fetching careers:", err);
@@ -19,7 +20,7 @@ const ManageCareers = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/career", form);
+      await axios.post(`${API}/career`, form);
       alert("Career added successfully!");
       setForm({ title: "", description: "", location: "" });
       fetchCareers();
@@ -33,7 +34,7 @@ const ManageCareers = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this career?")) return;
     try {
-      await axios.delete(`http://localhost:5000/career/${id}`);
+      await axios.delete(`${API}/career/${id}`);
       fetchCareers();
     } catch (err) {
       alert("Failed to delete career");

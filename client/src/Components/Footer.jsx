@@ -41,7 +41,7 @@ const columns = [
     title: "Get Started",
     links: [
       { to: "/student-register", label: "Apply Now" },
-      { to: "/student-login", label: "Student Login" },
+      { to: "/student-portal", label: "Student Portal" },
       { to: "/careers", label: "Careers" },
       { to: "/contact", label: "Contact Us" },
     ],
@@ -118,7 +118,10 @@ const Footer = () => {
             © {new Date().getFullYear()} IHEMFORGE Academy. All rights
             reserved.
           </p>
-          <p>Learn. Build. Grow.</p>
+          <p>
+            Learn. Build. Grow. ·{" "}
+            <Link to="/admin-login" className="hover:text-ember-400">Staff login</Link>
+          </p>
         </div>
       </div>
     </footer>

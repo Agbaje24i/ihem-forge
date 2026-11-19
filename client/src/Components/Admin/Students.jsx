@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API } from "../../api";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -28,7 +29,7 @@ const Students = () => {
 
   const loadStudents = async () => {
     try {
-      const response = await fetch("http://localhost:5000/students");
+      const response = await fetch(`${API}/students`);
 
       const data = await response.json();
 
@@ -51,8 +52,8 @@ const Students = () => {
     try {
 
       const url = isEditing
-        ? `http://localhost:5000/students/${editingId}`
-        : "http://localhost:5000/students";
+        ? `${API}/students/${editingId}`
+        : `${API}/students`;
 
       const method = isEditing ? "PUT" : "POST";
 
@@ -131,7 +132,7 @@ const Students = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/students/${item._id}`,
+        `${API}/students/${item._id}`,
         {
           method: "DELETE",
         }

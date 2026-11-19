@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "../api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Login = () => {
 
     try {
       // Call the correct backend route
-      const response = await fetch("http://localhost:5000/admin-login", {
+      const response = await fetch(`${API}/admin-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

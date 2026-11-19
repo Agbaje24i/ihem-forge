@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import AuthShell, { inputClass } from "./AuthShell";
 
@@ -8,7 +8,7 @@ const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const safeRedirect = (value) =>
   value && value.startsWith("/") && !value.startsWith("//")
     ? value
-    : "/student-apply";
+    : "/student-portal";
 
 const StudentLogin = () => {
   const navigate = useNavigate();

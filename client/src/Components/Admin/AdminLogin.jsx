@@ -1,6 +1,7 @@
 // src/Components/Admin/AdminLogin.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "../../api";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
@@ -23,7 +24,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/admin-login", {
+      const res = await fetch(`${API}/admin-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
