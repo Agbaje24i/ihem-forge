@@ -45,7 +45,7 @@ const StudentLogin = () => {
         setError(data.message || "Login failed");
       }
     } catch (err) {
-      setError("Server connection error");
+      setError(`Cannot reach the server at ${API}. Check that the backend is running and its port is public.`);
     }
 
     setLoading(false);

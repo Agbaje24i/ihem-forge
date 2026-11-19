@@ -118,7 +118,7 @@ const StudentApply = () => {
         setError(data.message || "Failed to submit application");
       }
     } catch (err) {
-      setError("Server connection error");
+      setError(`Cannot reach the server at ${API}. Check that the backend is running and its port is public.`);
     }
 
     setSubmitting(false);
