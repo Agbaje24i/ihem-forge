@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { CalendarDays, X } from "lucide-react";
 import PageHeader from "./PageHeader";
 import { inputClass } from "./AuthShell";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 // TODO: replace with your real upcoming events (dates in the past show as "Completed")
 const initialEvents = [

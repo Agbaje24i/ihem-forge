@@ -8,8 +8,8 @@ import { inputClass } from "./AuthShell";
 import leadPhoto from "../assets/lead.jpg";
 import instructorPhoto from "../assets/instructor.jpg";
 import { contactInfo } from "../data/site";
+import { API } from "../api";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const team = [
   {
