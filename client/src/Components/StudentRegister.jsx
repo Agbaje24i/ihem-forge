@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import AuthShell, { inputClass } from "./AuthShell";
 

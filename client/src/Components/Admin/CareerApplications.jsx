@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { API } from "../../api";
 
-const API = "http://localhost:5000";
 
 const CareerApplications = () => {
   const [applications, setApplications] = useState([]);

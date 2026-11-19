@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import certLogo from "../assets/cert logo.png";
 import signature from "../assets/Signature.png";
 import stamp from "../assets/Stamp.png";
+import { API } from "../api";
 
 const CertificateForm = () => {
   const [name, setName] = useState("");
@@ -30,7 +31,7 @@ const CertificateForm = () => {
   }
 
   try {
-    const response = await fetch("http://localhost:5000/certificate", {
+    const response = await fetch(`${API}/certificate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
