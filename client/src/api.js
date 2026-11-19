@@ -1,15 +1,14 @@
 // Shared helpers for talking to the backend.
 // Where the backend lives. Order of choice:
 // 1. REACT_APP_API_URL from client/.env, if set
-// 2. In GitHub Codespaces, the same address with port 5000 instead of 3000
+// 2. In GitHub Codespaces: "" (same address as the site). The dev server
+//    forwards API calls to the backend on port 5000 (see "proxy" in
+//    client/package.json), so port visibility and CORS do not matter.
 // 3. http://localhost:5000
 const guessApiUrl = () => {
   if (process.env.REACT_APP_API_URL) return process.env.REACT_APP_API_URL;
   try {
-    const { protocol, hostname } = window.location;
-    if (hostname.endsWith(".app.github.dev") && /-\d+\.app\.github\.dev$/.test(hostname)) {
-      return `${protocol}//${hostname.replace(/-\d+\.app\.github\.dev$/, "-5000.app.github.dev")}`;
-    }
+    if (window.location.hostname.endsWith(".app.github.dev")) return "";
   } catch {}
   return "http://localhost:5000";
 };
