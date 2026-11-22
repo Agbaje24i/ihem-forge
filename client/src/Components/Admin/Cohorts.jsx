@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { adminRequest, formatDate, formatDateTime, naira, toDateInput, toDateTimeInput } from "../../api";
+import { adminRequest, formatDate, naira, toDateInput } from "../../api";
 import { categories, tracks } from "../../data/tracks";
+import LessonEditor from "./LessonEditor";
 
 const inputClass = "w-full border rounded-lg p-2.5";
 const labelClass = "block text-sm font-semibold text-gray-700 mb-1";
@@ -14,6 +15,7 @@ const emptyCohort = {
   seats: 30,
   tuition: 0,
   status: "Open",
+  communityLink: "",
 };
 
 const emptyLesson = { title: "", kind: "class", date: "", link: "", description: "", order: 0 };
@@ -26,174 +28,29 @@ const Field = ({ label, children }) => (
 );
 
 // ----------------------------------------------------------------
-// Lessons manager for one cohort (classes, assignments, resources)
+// Lessons manager for one cohort (live classes, due dates)
 // ----------------------------------------------------------------
-const LessonsManager = ({ cohort, onClose }) => {
-  const [lessons, setLessons] = useState([]);
-  const [form, setForm] = useState(emptyLesson);
-  const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    const { ok, data } = await adminRequest(`/admin/cohorts/${cohort._id}/lessons`);
-    setLessons(ok && Array.isArray(data) ? data : []);
-  }, [cohort._id]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const startEdit = (lesson) => {
-    setEditingId(lesson._id);
-    setForm({
-      title: lesson.title,
-      kind: lesson.kind,
-      date: toDateTimeInput(lesson.date),
-      link: lesson.link || "",
-      description: lesson.description || "",
-      order: lesson.order || 0,
-    });
-    setError("");
-  };
-
-  const reset = () => {
-    setEditingId(null);
-    setForm(emptyLesson);
-    setError("");
-  };
-
-  const save = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-
-    const body = { ...form, date: form.date ? new Date(form.date).toISOString() : "" };
-    const { ok, data } = editingId
-      ? await adminRequest(`/admin/lessons/${editingId}`, { method: "PUT", body })
-      : await adminRequest(`/admin/cohorts/${cohort._id}/lessons`, { method: "POST", body });
-
-    setSaving(false);
-    if (!ok) {
-      setError(data?.message || "Could not save the lesson");
-      return;
-    }
-    reset();
-    load();
-  };
-
-  const remove = async (lesson) => {
-    if (!window.confirm(`Delete "${lesson.title}"? Students' progress on it is removed too.`)) return;
-    await adminRequest(`/admin/lessons/${lesson._id}`, { method: "DELETE" });
-    if (editingId === lesson._id) reset();
-    load();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start overflow-y-auto z-50 p-4">
-      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-8 my-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-2xl font-bold">Classes &amp; assignments</h2>
-            <p className="text-gray-600">
-              {cohort.name} · {cohort.track}
-            </p>
-          </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl leading-none">
-            ×
-          </button>
+const LessonsManager = ({ cohort, onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start overflow-y-auto z-50 p-4">
+    <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-8 my-8">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Classes &amp; assignments</h2>
+          <p className="text-gray-600">
+            {cohort.name} · {cohort.track}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Only for this cohort. Material for the whole track goes under Course Content.
+          </p>
         </div>
-
-        {/* List */}
-        <div className="mt-6 space-y-2">
-          {lessons.length === 0 ? (
-            <p className="text-gray-500">No lessons yet. Add the first one below.</p>
-          ) : (
-            lessons.map((l, i) => (
-              <div key={l._id} className="flex items-start justify-between gap-3 border rounded-lg p-3">
-                <div>
-                  <p className="font-semibold">
-                    {i + 1}. {l.title}{" "}
-                    <span className="ml-2 text-xs uppercase tracking-wide bg-gray-100 rounded px-2 py-0.5">
-                      {l.kind}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {l.date ? formatDateTime(l.date) : "No date set"}
-                    {l.link ? " · has link" : ""}
-                  </p>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={() => startEdit(l)} className="bg-blue-600 text-white px-3 py-1 rounded">
-                    Edit
-                  </button>
-                  <button onClick={() => remove(l)} className="bg-red-600 text-white px-3 py-1 rounded">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Form */}
-        <form onSubmit={save} className="mt-8 border-t pt-6 space-y-4">
-          <h3 className="text-lg font-bold">{editingId ? "Edit lesson" : "Add a lesson"}</h3>
-
-          {error && <p className="bg-red-50 text-red-700 rounded p-3 text-sm">{error}</p>}
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
-              <Field label="Title">
-                <input name="title" value={form.title} onChange={change} required className={inputClass} />
-              </Field>
-            </div>
-            <Field label="Type">
-              <select name="kind" value={form.kind} onChange={change} className={inputClass}>
-                <option value="class">Class</option>
-                <option value="assignment">Assignment</option>
-                <option value="resource">Resource</option>
-              </select>
-            </Field>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            <Field label="Date and time (or due date)">
-              <input type="datetime-local" name="date" value={form.date} onChange={change} className={inputClass} />
-            </Field>
-            <Field label="Order">
-              <input type="number" name="order" value={form.order} onChange={change} className={inputClass} />
-            </Field>
-            <Field label="Link (meeting, recording, file)">
-              <input name="link" value={form.link} onChange={change} placeholder="https://..." className={inputClass} />
-            </Field>
-          </div>
-
-          <Field label="Description">
-            <textarea name="description" value={form.description} onChange={change} rows="3" className={inputClass} />
-          </Field>
-
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg disabled:opacity-60"
-            >
-              {saving ? "Saving..." : editingId ? "Save changes" : "Add lesson"}
-            </button>
-            {editingId && (
-              <button type="button" onClick={reset} className="bg-gray-500 text-white px-5 py-2 rounded-lg">
-                Cancel edit
-              </button>
-            )}
-          </div>
-        </form>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl leading-none">
+          ×
+        </button>
       </div>
+      <LessonEditor listUrl={`/admin/cohorts/${cohort._id}/lessons`} createUrl={`/admin/cohorts/${cohort._id}/lessons`} />
     </div>
-  );
-};
+  </div>
+);
 
 // ----------------------------------------------------------------
 // Cohorts page
@@ -246,6 +103,7 @@ const Cohorts = () => {
       seats: c.seats,
       tuition: c.tuition,
       status: c.status,
+      communityLink: c.communityLink || "",
     });
     setFormError("");
     setShowForm(true);
@@ -283,6 +141,7 @@ const Cohorts = () => {
         seats: c.seats,
         tuition: c.tuition,
         status: next,
+        communityLink: c.communityLink || "",
       },
     });
     if (!ok) window.alert(data?.message || "Could not update the cohort");
@@ -436,6 +295,10 @@ const Cohorts = () => {
                 <input type="number" min="0" name="tuition" value={form.tuition} onChange={change} className={inputClass} />
               </Field>
             </div>
+
+            <Field label="Community group link (WhatsApp, Telegram, Discord)">
+              <input name="communityLink" value={form.communityLink} onChange={change} placeholder="https://..." className={inputClass} />
+            </Field>
 
             <Field label="Status">
               <select name="status" value={form.status} onChange={change} className={inputClass}>
