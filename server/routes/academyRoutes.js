@@ -125,6 +125,27 @@ router.post("/cohorts", requireAdmin, async (req, res) => {
   }
 });
 
+// One intake for several tracks at once: the same name, dates, seats, fee and
+// mode are saved as a separate cohort for each track (seats are per track).
+router.post("/cohorts/bulk", requireAdmin, async (req, res) => {
+  try {
+    const list = Array.isArray(req.body.tracks) ? [...new Set(req.body.tracks.map((t) => String(t).trim()))] : [];
+    if (list.length === 0 || list.some((t) => !t)) return fail(res, 400, "Choose at least one track");
+
+    const docs = [];
+    for (const track of list) {
+      const { error, data } = readCohort({ ...req.body, track });
+      if (error) return fail(res, 400, error);
+      docs.push(data);
+    }
+
+    const created = await Cohort.insertMany(docs);
+    res.status(201).json({ created: created.length });
+  } catch (err) {
+    serverError(res, err);
+  }
+});
+
 router.put("/cohorts/:id", requireAdmin, async (req, res) => {
   try {
     if (!isId(req.params.id)) return fail(res, 400, "Invalid cohort id");
