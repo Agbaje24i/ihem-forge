@@ -64,6 +64,7 @@ const Cohorts = () => {
   const [form, setForm] = useState(emptyCohort);
   const [editingId, setEditingId] = useState(null);
   const [selectedTracks, setSelectedTracks] = useState([]);
+  const [applyAll, setApplyAll] = useState(true);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -86,6 +87,12 @@ const Cohorts = () => {
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // How many cohorts share the edited cohort's name and start date (the same intake)
+  const editedCohort = cohorts.find((c) => c._id === editingId);
+  const siblingCount = editedCohort
+    ? cohorts.filter((c) => c.name === editedCohort.name && c.startDate === editedCohort.startDate).length
+    : 0;
+
   const toggleTrack = (name) =>
     setSelectedTracks((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
 
@@ -98,6 +105,7 @@ const Cohorts = () => {
   };
 
   const openEdit = (c) => {
+    setApplyAll(true);
     setEditingId(c._id);
     setForm({
       track: c.track,
@@ -128,7 +136,7 @@ const Cohorts = () => {
     }
 
     const { ok, data } = editingId
-      ? await adminRequest(`/cohorts/${editingId}`, { method: "PUT", body })
+      ? await adminRequest(`/cohorts/${editingId}`, { method: "PUT", body: { ...body, applyToIntake: siblingCount > 1 && applyAll } })
       : await adminRequest("/cohorts/bulk", { method: "POST", body: { ...body, tracks: selectedTracks } });
 
     setSaving(false);
@@ -305,6 +313,16 @@ const Cohorts = () => {
                   ))}
                 </div>
               </div>
+            )}
+
+            {editingId && siblingCount > 1 && (
+              <label className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm">
+                <input type="checkbox" className="mt-1" checked={applyAll} onChange={(e) => setApplyAll(e.target.checked)} />
+                <span>
+                  Apply these changes to all <strong>{siblingCount} tracks</strong> in this intake ({editedCohort.name}).
+                  Untick to change only {editedCohort.track}.
+                </span>
+              </label>
             )}
 
             <Field label="Cohort name (for example: March 2027 Intake)">

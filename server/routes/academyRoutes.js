@@ -153,6 +153,29 @@ router.put("/cohorts/:id", requireAdmin, async (req, res) => {
     const { error, data } = readCohort(req.body);
     if (error) return fail(res, 400, error);
 
+    // Apply the same changes to every track of this intake (same name and start date)
+    if (req.body.applyToIntake) {
+      const original = await Cohort.findById(req.params.id);
+      if (!original) return fail(res, 404, "Cohort not found");
+
+      const siblings = await Cohort.find({ name: original.name, startDate: original.startDate });
+      const updates = [];
+      for (const sib of siblings) {
+        const { error: e, data: d } = readCohort({ ...req.body, track: sib.track });
+        if (e) return fail(res, 400, e);
+        const approvedHere = await Application.countDocuments({ cohort: sib._id, status: "Approved" });
+        if (d.seats < approvedHere) {
+          return fail(res, 400, `${sib.track} already has ${approvedHere} approved students, so seats cannot go below ${approvedHere}`);
+        }
+        updates.push({ sib, d });
+      }
+      for (const { sib, d } of updates) {
+        await Cohort.findByIdAndUpdate(sib._id, d);
+        await Application.updateMany({ cohort: sib._id }, { cohortName: d.name });
+      }
+      return res.json({ updated: updates.length });
+    }
+
     // Cannot shrink below the number of students already approved
     const approved = await Application.countDocuments({
       cohort: req.params.id,
