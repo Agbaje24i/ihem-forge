@@ -63,6 +63,7 @@ const Cohorts = () => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyCohort);
   const [editingId, setEditingId] = useState(null);
+  const [selectedTracks, setSelectedTracks] = useState([]);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -85,7 +86,11 @@ const Cohorts = () => {
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const toggleTrack = (name) =>
+    setSelectedTracks((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
+
   const openNew = () => {
+    setSelectedTracks([]);
     setEditingId(null);
     setForm(emptyCohort);
     setFormError("");
@@ -115,9 +120,16 @@ const Cohorts = () => {
     setFormError("");
 
     const body = { ...form, seats: Number(form.seats), tuition: Number(form.tuition) };
+
+    if (!editingId && selectedTracks.length === 0) {
+      setSaving(false);
+      setFormError("Choose at least one track");
+      return;
+    }
+
     const { ok, data } = editingId
       ? await adminRequest(`/cohorts/${editingId}`, { method: "PUT", body })
-      : await adminRequest("/cohorts", { method: "POST", body });
+      : await adminRequest("/cohorts/bulk", { method: "POST", body: { ...body, tracks: selectedTracks } });
 
     setSaving(false);
     if (!ok) {
@@ -249,22 +261,51 @@ const Cohorts = () => {
 
             {formError && <p className="bg-red-50 text-red-700 rounded p-3 text-sm">{formError}</p>}
 
-            <Field label="Track">
-              <select name="track" value={form.track} onChange={change} required className={inputClass}>
-                <option value="">Select a track</option>
-                {categories.map((cat) => (
-                  <optgroup key={cat.id} label={cat.label}>
-                    {tracks
-                      .filter((t) => t.category === cat.id)
-                      .map((t) => (
-                        <option key={t.slug} value={t.name}>
-                          {t.name}
-                        </option>
-                      ))}
-                  </optgroup>
-                ))}
-              </select>
-            </Field>
+            {editingId ? (
+              <Field label="Track">
+                <input value={form.track} readOnly className={`${inputClass} bg-gray-100`} />
+              </Field>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Tracks ({selectedTracks.length} selected)
+                  </label>
+                  <span className="text-sm space-x-3">
+                    <button type="button" className="text-blue-600 underline" onClick={() => setSelectedTracks(tracks.map((t) => t.name))}>
+                      Select all
+                    </button>
+                    <button type="button" className="text-blue-600 underline" onClick={() => setSelectedTracks([])}>
+                      Clear
+                    </button>
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mb-2">
+                  One cohort is created for each track you tick, all with the details below.
+                </p>
+                <div className="max-h-56 overflow-y-auto border rounded-lg p-3 space-y-3">
+                  {categories.map((cat) => (
+                    <div key={cat.id}>
+                      <p className="text-xs font-bold uppercase text-gray-500">{cat.label}</p>
+                      <div className="grid sm:grid-cols-2 gap-1 mt-1">
+                        {tracks
+                          .filter((t) => t.category === cat.id)
+                          .map((t) => (
+                            <label key={t.slug} className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={selectedTracks.includes(t.name)}
+                                onChange={() => toggleTrack(t.name)}
+                              />
+                              {t.name}
+                            </label>
+                          ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <Field label="Cohort name (for example: March 2027 Intake)">
               <input name="name" value={form.name} onChange={change} required className={inputClass} />
@@ -316,7 +357,7 @@ const Cohorts = () => {
                 disabled={saving}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg disabled:opacity-60"
               >
-                {saving ? "Saving..." : "Save cohort"}
+                {saving ? "Saving..." : editingId ? "Save cohort" : `Create ${selectedTracks.length || ""} cohort${selectedTracks.length === 1 ? "" : "s"}`}
               </button>
             </div>
           </form>
