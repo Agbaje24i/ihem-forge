@@ -34,7 +34,11 @@ function readCohort(body) {
   const tuition = body.tuition === "" || body.tuition == null ? 0 : Number(body.tuition);
   const mode = body.mode || "any";
   const status = body.status || "Open";
+  const communityLink = String(body.communityLink || "").trim();
 
+  if (communityLink && !/^https?:\/\//i.test(communityLink)) {
+    return { error: "Community link must start with http:// or https://" };
+  }
   if (!track) return { error: "Track is required" };
   if (!name) return { error: "Cohort name is required" };
   if (Number.isNaN(startDate.getTime())) return { error: "A valid start date is required" };
@@ -46,7 +50,7 @@ function readCohort(body) {
   if (!["online", "in-person", "hybrid", "any"].includes(mode)) return { error: "Invalid learning mode" };
   if (!["Open", "Closed"].includes(status)) return { error: "Invalid status" };
 
-  return { data: { track, name, startDate, endDate, seats, tuition, mode, status } };
+  return { data: { track, name, startDate, endDate, seats, tuition, mode, status, communityLink } };
 }
 
 // ======================
@@ -174,8 +178,10 @@ function readLesson(body) {
   const kind = body.kind || "class";
   const date = body.date ? new Date(body.date) : undefined;
   const link = String(body.link || "").trim();
+  const videoUrl = String(body.videoUrl || "").trim();
 
   if (!title) return { error: "Title is required" };
+  if (videoUrl && !/^https?:\/\//i.test(videoUrl)) return { error: "Video link must start with http:// or https://" };
   if (!["class", "assignment", "resource"].includes(kind)) return { error: "Invalid lesson type" };
   if (date && Number.isNaN(date.getTime())) return { error: "Invalid date" };
   // Only web links, so a lesson link can never run script in a student's browser
@@ -187,6 +193,9 @@ function readLesson(body) {
       kind,
       date,
       link,
+      videoUrl,
+      module: String(body.module || "").trim(),
+      content: String(body.content || ""),
       description: String(body.description || "").trim(),
       order: Number.isFinite(Number(body.order)) ? Number(body.order) : 0,
     },
@@ -212,6 +221,33 @@ router.post("/admin/cohorts/:id/lessons", requireAdmin, async (req, res) => {
     if (error) return fail(res, 400, error);
 
     const lesson = await Lesson.create({ ...data, cohort: req.params.id });
+    res.status(201).json(lesson);
+  } catch (err) {
+    serverError(res, err);
+  }
+});
+
+// Course content that every cohort of a track sees
+router.get("/admin/track-lessons", requireAdmin, async (req, res) => {
+  try {
+    const track = String(req.query.track || "").trim();
+    if (!track) return fail(res, 400, "Track is required");
+    const lessons = await Lesson.find({ track }).sort({ order: 1, createdAt: 1 });
+    res.json(lessons);
+  } catch (err) {
+    serverError(res, err);
+  }
+});
+
+router.post("/admin/track-lessons", requireAdmin, async (req, res) => {
+  try {
+    const track = String(req.body.track || "").trim();
+    if (!track) return fail(res, 400, "Track is required");
+
+    const { error, data } = readLesson(req.body);
+    if (error) return fail(res, 400, error);
+
+    const lesson = await Lesson.create({ ...data, track });
     res.status(201).json(lesson);
   } catch (err) {
     serverError(res, err);
@@ -348,8 +384,10 @@ router.get("/student/portal", requireStudent, async (req, res) => {
       let progress = { total: 0, completed: 0, percent: 0 };
 
       // Lessons are only shown to approved students
-      if (app.status === "Approved" && cohort) {
-        const found = await Lesson.find({ cohort: cohort._id })
+      if (app.status === "Approved") {
+        const sources = [{ track: app.course }];
+        if (cohort) sources.push({ cohort: cohort._id });
+        const found = await Lesson.find({ $or: sources })
           .sort({ order: 1, date: 1, createdAt: 1 })
           .lean();
         const done = await LessonProgress.find({
@@ -365,6 +403,9 @@ router.get("/student/portal", requireStudent, async (req, res) => {
           kind: l.kind,
           date: l.date,
           link: l.link,
+          videoUrl: l.videoUrl,
+          module: l.module,
+          content: l.content,
           completed: doneIds.includes(String(l._id)),
         }));
         progress = computeProgress(found.map((l) => l._id), doneIds);
@@ -385,6 +426,7 @@ router.get("/student/portal", requireStudent, async (req, res) => {
               startDate: cohort.startDate,
               endDate: cohort.endDate,
               mode: cohort.mode,
+              communityLink: cohort.communityLink,
             }
           : null,
         finance,
@@ -419,10 +461,10 @@ router.post("/student/lessons/:id/complete", requireStudent, async (req, res) =>
 
     const enrolled = await Application.exists({
       email: emailMatcher(req.student.email),
-      cohort: lesson.cohort,
       status: "Approved",
+      ...(lesson.cohort ? { cohort: lesson.cohort } : { course: lesson.track }),
     });
-    if (!enrolled) return fail(res, 403, "You are not enrolled in this cohort");
+    if (!enrolled) return fail(res, 403, "You are not enrolled in this course");
 
     const email = String(req.student.email).toLowerCase();
     const completed = req.body.completed !== false;

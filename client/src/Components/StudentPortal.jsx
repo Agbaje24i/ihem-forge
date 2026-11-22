@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Circle, ExternalLink, LogOut } from "lucide-react";
-import { formatDate, formatDateTime, naira, studentRequest } from "../api";
+import { Award, LogOut, Search, Users } from "lucide-react";
+import { formatDate, naira, studentRequest } from "../api";
+import { tracks } from "../data/tracks";
 
 const statusStyle = {
   Pending: "bg-amber-100 text-amber-800",
@@ -12,16 +13,28 @@ const statusStyle = {
 
 const statusMessage = {
   Pending: "Your application is being reviewed. We will update this page when a decision is made.",
-  Approved: "You are in. Your classes and progress are below.",
+  Approved: "You are in. Start or continue your course below.",
   Waitlisted: "You are on the waiting list. We will contact you if a seat opens.",
   Rejected: "Your application was not successful this time.",
 };
 
-const kindLabel = { class: "Class", assignment: "Assignment", resource: "Resource" };
+// Which filter group a course belongs to
+const groupOf = (a) => {
+  if (a.status !== "Approved") return "applied";
+  return a.progress.total > 0 && a.progress.percent === 100 ? "completed" : "progress";
+};
 
-const Application = ({ app, onToggle }) => {
-  const { finance: f, cohort, lessons, progress } = app;
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "progress", label: "In progress" },
+  { id: "completed", label: "Completed" },
+  { id: "applied", label: "Applied" },
+];
+
+const CourseCard = ({ app }) => {
+  const { finance: f, cohort, progress } = app;
   const approved = app.status === "Approved";
+  const track = tracks.find((t) => t.name === app.course);
 
   return (
     <section className="rounded-3xl border border-forge-100 bg-white p-6 shadow-card sm:p-8">
@@ -42,7 +55,34 @@ const Application = ({ app, onToggle }) => {
         <p className="mt-2 rounded-xl bg-forge-50 p-3 text-sm text-slate-700">Note from the team: {app.reviewNote}</p>
       )}
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+      {approved && (
+        <div className="mt-5">
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>Your progress</span>
+            <span>
+              {progress.completed}/{progress.total} lessons · {progress.percent}%
+            </span>
+          </div>
+          <div className="mt-2 h-3 overflow-hidden rounded-full bg-forge-100">
+            <div className="h-full rounded-full bg-forge-600 transition-all" style={{ width: `${progress.percent}%` }} />
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        {approved && (
+          <Link to={`/student-portal/course/${app._id}`} className="btn-primary !px-5 !py-2.5 text-sm">
+            {progress.completed > 0 ? "Resume course" : "Start course"}
+          </Link>
+        )}
+        {track && (
+          <Link to={`/tracks/${track.slug}`} className="btn-outline !px-5 !py-2.5 text-sm">
+            See overview
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl bg-forge-50 p-4">
           <p className="text-xs text-slate-500">Cohort</p>
           <p className="font-bold">{cohort ? cohort.name : "Not assigned yet"}</p>
@@ -57,7 +97,21 @@ const Application = ({ app, onToggle }) => {
         </div>
       </div>
 
-      {/* Fees */}
+      {approved && cohort?.communityLink && (
+        <a
+          href={cohort.communityLink}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="mt-5 flex items-center gap-3 rounded-2xl border border-forge-100 p-4 transition hover:bg-forge-50"
+        >
+          <Users size={20} className="text-forge-600" />
+          <span>
+            <span className="block font-semibold">Join your cohort community</span>
+            <span className="text-sm text-slate-600">Chat with your mentors and classmates.</span>
+          </span>
+        </a>
+      )}
+
       {cohort && f.tuition > 0 && (
         <div className="mt-6">
           <h3 className="font-bold">Fees</h3>
@@ -89,61 +143,6 @@ const Application = ({ app, onToggle }) => {
           )}
         </div>
       )}
-
-      {/* Classes */}
-      {approved && (
-        <div className="mt-8">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold">Your classes</h3>
-            <span className="text-sm text-slate-600">
-              {progress.completed}/{progress.total} done · {progress.percent}%
-            </span>
-          </div>
-          <div className="mt-2 h-3 overflow-hidden rounded-full bg-forge-100">
-            <div className="h-full rounded-full bg-forge-600 transition-all" style={{ width: `${progress.percent}%` }} />
-          </div>
-
-          {lessons.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-600">
-              {cohort ? "No classes have been posted yet. Check back soon." : "You will see classes once you are placed in a cohort."}
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {lessons.map((l) => (
-                <li key={l._id} className="flex items-start gap-3 rounded-2xl border border-forge-100 p-4">
-                  <button
-                    onClick={() => onToggle(l)}
-                    aria-label={l.completed ? "Mark as not done" : "Mark as done"}
-                    className="mt-0.5 text-forge-600"
-                  >
-                    {l.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
-                  </button>
-                  <div className="min-w-0 flex-1">
-                    <p className={`font-semibold ${l.completed ? "text-slate-400 line-through" : ""}`}>
-                      {l.title}{" "}
-                      <span className="ml-1 rounded bg-forge-50 px-2 py-0.5 text-xs font-medium uppercase text-forge-700">
-                        {kindLabel[l.kind] || l.kind}
-                      </span>
-                    </p>
-                    {l.date && <p className="text-sm text-slate-500">{formatDateTime(l.date)}</p>}
-                    {l.description && <p className="mt-1 text-sm text-slate-600">{l.description}</p>}
-                    {l.link && (
-                      <a
-                        href={l.link}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-forge-600 hover:underline"
-                      >
-                        Open link <ExternalLink size={14} />
-                      </a>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
     </section>
   );
 };
@@ -153,6 +152,8 @@ const StudentPortal = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   const load = useCallback(async () => {
     const { ok, data: body } = await studentRequest("/student/portal");
@@ -177,32 +178,15 @@ const StudentPortal = () => {
     load();
   }, [navigate, load]);
 
-  const toggle = async (lesson) => {
-    const completed = !lesson.completed;
-    // Optimistic update, then re-sync from the server
-    setData((prev) => ({
-      ...prev,
-      applications: prev.applications.map((a) => {
-        if (!a.lessons.some((l) => l._id === lesson._id)) return a;
-        const lessons = a.lessons.map((l) => (l._id === lesson._id ? { ...l, completed } : l));
-        const done = lessons.filter((l) => l.completed).length;
-        return {
-          ...a,
-          lessons,
-          progress: {
-            total: lessons.length,
-            completed: done,
-            percent: lessons.length ? Math.round((done / lessons.length) * 100) : 0,
-          },
-        };
-      }),
-    }));
-    const { ok } = await studentRequest(`/student/lessons/${lesson._id}/complete`, {
-      method: "POST",
-      body: { completed },
+  const apps = data?.applications || [];
+
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return apps.filter((a) => {
+      if (filter !== "all" && groupOf(a) !== filter) return false;
+      return !q || a.course.toLowerCase().includes(q);
     });
-    if (!ok) load();
-  };
+  }, [apps, filter, search]);
 
   const logout = () => {
     try {
@@ -218,9 +202,9 @@ const StudentPortal = () => {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold sm:text-4xl">
-              {data ? `Hello, ${data.student.fullName}` : "My portal"}
+              {data ? `Welcome back, ${data.student.fullName}` : "My courses"}
             </h1>
-            <p className="mt-2 text-slate-600">Your applications, classes and progress in one place.</p>
+            <p className="mt-2 text-slate-600">Your courses, progress, fees and certificates in one place.</p>
           </div>
           <button
             onClick={logout}
@@ -230,11 +214,38 @@ const StudentPortal = () => {
           </button>
         </div>
 
-        <div className="mt-8 space-y-6">
+        {apps.length > 0 && (
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="relative min-w-[200px] flex-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search my courses"
+                className="w-full rounded-xl border border-forge-100 bg-white py-2.5 pl-9 pr-3 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilter(f.id)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    filter === f.id ? "bg-forge-600 text-white" : "bg-white text-slate-700 hover:bg-forge-50"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 space-y-6">
           {loading && <p className="text-slate-600">Loading...</p>}
           {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
-          {data && data.applications.length === 0 && (
+          {data && apps.length === 0 && (
             <div className="rounded-3xl border border-forge-100 bg-white p-8 text-center shadow-card">
               <p className="text-slate-600">You have not applied to a track yet.</p>
               <Link to="/student-apply" className="btn-primary mt-4 inline-flex">
@@ -243,9 +254,31 @@ const StudentPortal = () => {
             </div>
           )}
 
-          {data && data.applications.map((a) => <Application key={a._id} app={a} onToggle={toggle} />)}
+          {data && apps.length > 0 && visible.length === 0 && (
+            <p className="text-slate-600">No courses match your filter.</p>
+          )}
 
-          {data && data.applications.length > 0 && (
+          {visible.map((a) => (
+            <CourseCard key={a._id} app={a} />
+          ))}
+
+          {data && (
+            <div className="flex items-center gap-3 rounded-2xl border border-forge-100 bg-white p-5">
+              <Award size={22} className="text-forge-600" />
+              <div>
+                <p className="font-semibold">Certificates</p>
+                <p className="text-sm text-slate-600">
+                  When you finish, the academy issues your certificate. Anyone can check it on the{" "}
+                  <Link to="/verify" className="font-semibold text-forge-600 underline">
+                    verify page
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+          )}
+
+          {data && apps.length > 0 && (
             <p className="text-center text-sm">
               <Link to="/student-apply" className="font-semibold text-forge-600 hover:underline">
                 Apply to another track

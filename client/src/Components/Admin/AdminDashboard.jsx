@@ -10,6 +10,7 @@ import Messages from "./Messages";
 import Events from "./Events";
 import CareerApplications from "./CareerApplications";
 import Cohorts from "./Cohorts";
+import CourseContent from "./CourseContent";
 import { API, adminRequest } from "../../api";
 
 const AdminDashboard = () => {
@@ -144,6 +145,17 @@ const AdminDashboard = () => {
           </button>
 
           <button
+            onClick={() => setActivePage("content")}
+            className={`w-full text-left px-3 py-3 rounded ${
+              activePage === "content"
+                ? "bg-blue-600"
+                : "hover:bg-slate-700"
+            }`}
+          >
+            📖 Course Content
+          </button>
+
+          <button
             onClick={() => setActivePage("cohorts")}
             className={`w-full text-left px-3 py-3 rounded ${
               activePage === "cohorts"
@@ -227,6 +239,10 @@ const AdminDashboard = () => {
 
         {activePage === "courses" && (
           <Courses />
+        )}
+
+        {activePage === "content" && (
+          <CourseContent />
         )}
 
         {activePage === "cohorts" && (

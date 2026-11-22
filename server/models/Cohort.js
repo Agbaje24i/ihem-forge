@@ -15,6 +15,7 @@ const cohortSchema = new mongoose.Schema(
     seats: { type: Number, required: true, min: 1 },
     tuition: { type: Number, default: 0, min: 0 }, // full fee, in naira
     status: { type: String, enum: ["Open", "Closed"], default: "Open" },
+    communityLink: { type: String, default: "", trim: true }, // WhatsApp / Telegram / Discord group
   },
   { timestamps: true }
 );
