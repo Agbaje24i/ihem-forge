@@ -14,6 +14,7 @@ import {
   Laptop,
 } from "lucide-react";
 import TracksPreview from "./TracksPreview";
+import UpcomingIntakes from "./UpcomingIntakes";
 import TestimonialsPreview from "./TestimonialsPreview";
 import TrackIcon from "./TrackIcon";
 import { benefits, homeStats, learningModes } from "../data/site";
@@ -200,6 +201,9 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {/* UPCOMING INTAKES (from the admin's cohorts) */}
+      <UpcomingIntakes />
 
       {/* ALL TRACKS */}
       <TracksPreview />
