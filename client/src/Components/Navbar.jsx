@@ -59,6 +59,9 @@ const Navbar = () => {
     setOpenMenu(null);
   }, [location.pathname]);
 
+  // The admin area has its own sidebar, so the public menu is hidden there
+  if (location.pathname.startsWith("/admin")) return null;
+
   return (
     <header
       className={`fixed left-0 top-0 z-50 w-full border-b bg-white/90 backdrop-blur transition-shadow ${
